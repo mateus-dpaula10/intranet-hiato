@@ -30,9 +30,41 @@
 
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h3 class="mb-0">Controle de férias</h3> 
-                    <!-- @if($user->role === 'admin')
-                        <a href="{{ route('usuario.create') }}"><i class="bi bi-plus-square me-2"></i>Cadastrar usuário</a>
-                    @endif -->
+                    @if($user->role === 'admin')
+                        <a href="{{ route('vacation.create') }}"><i class="bi bi-plus-square me-2"></i>Cadastrar período</a>
+                    @endif
+                </div>
+
+                <div class="table-responsive">
+                    <table class="table table-success table-striped table-hover align-middle">
+                        <thead>
+                            <tr>
+                                <th>Colaborador</th>
+                                <th>Início</th>
+                                <th>Fim</th>
+                                <th>Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @if($user->role === 'admin')
+                                @foreach($vacations as $vacation)
+                                    <tr>
+                                        <td>{{ $vacation->user->name }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($vacation->start_date)->format('d/m/Y') }}</td>
+                                        <td>{{ \Carbon\Carbon::parse($vacation->end_date)->format('d/m/Y') }}</td>
+                                        <td class="d-flex gap-1">
+                                            <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                            <form action="{{ route('vacation.destroy', $user) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            @endif
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
