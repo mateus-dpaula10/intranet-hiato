@@ -53,8 +53,8 @@
                                         <td>{{ \Carbon\Carbon::parse($vacation->start_date)->format('d/m/Y') }}</td>
                                         <td>{{ \Carbon\Carbon::parse($vacation->end_date)->format('d/m/Y') }}</td>
                                         <td class="d-flex gap-1">
-                                            <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                            <form action="{{ route('vacation.destroy', $user) }}" method="POST">
+                                            <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $vacation) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                            <form action="{{ route('vacation.destroy', $vacation) }}" method="POST">
                                                 @csrf
                                                 @method('DELETE')
                                                 <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>

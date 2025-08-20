@@ -18,73 +18,32 @@
                 @endif
 
                 <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h3>Editar usuário '{{ $user->name }}'</h3> 
-                    <a href="{{ route('usuario.user') }}"><i class="bi bi-arrow-left-square me-2"></i>Voltar</a>
+                    <h3>Editar período de férias de '{{ $vacation->user->name }}'</h3> 
+                    <a href="{{ route('vacation.index') }}"><i class="bi bi-arrow-left-square me-2"></i>Voltar</a>
                 </div>
 
-                <form action="{{ route('usuario.update', $user) }}" method="POST">
+                <form action="{{ route('vacation.update', $vacation) }}" method="POST">
                     @csrf
                     @method('PATCH')
 
                     <div class="form-group">
-                        <label for="name" class="form-label">Nome</label>
-                        <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $user->name) }}" required>
+                        <label for="user_id">Nome</label>
+                        <select id="user_id" class="form-select" disabled>
+                            @foreach ($users as $user)
+                                <option value="{{ $user->id }}" {{ old('user_id', $vacation->user_id) == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                            @endforeach
+                        </select>
+                        <input type="hidden" name="user_id" value="{{ $vacation->user_id }}">
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="email" class="form-label">E-mail</label>
-                        @if(auth()->user()->role === 'admin')
-                            <input type="email" name="email" id="email" class="form-control" value="{{ old('email', $user->email) }}" required>
-                        @else
-                            <input type="email" name="email" id="email" class="form-control" value="{{ old('email', $user->email) }}" readonly required>
-                        @endif
+                        <label for="start_date">Data de início</label>
+                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date', $vacation->start_date) }}">
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="role" class="form-label">Função</label>
-                        @if(auth()->user()->role === 'admin')
-                            <select name="role" id="role" class="form-select">
-                                <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Usuário</option>
-                                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrador</option>
-                                <option value="collaborator" {{ old('role', $user->role) === 'collaborator' ? 'selected' : '' }}>Colaborador</option>
-                            </select>
-                        @else
-                            <select name="role" id="role" class="form-select" disabled>
-                                <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Usuário</option>
-                                <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrador</option>
-                                <option value="collaborator" {{ old('role', $user->role) === 'collaborator' ? 'selected' : '' }}>Colaborador</option>
-                            </select>
-                            <input type="hidden" name="role" value="{{ $user->role }}">
-                        @endif
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <button type="button" id="generate-password" class="btn btn-secondary">Gerar senha forte</button>
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="generated-password" class="form-label">Senha gerada (copiar):</label>
-                        <div class="input-group">
-                            <input type="text" id="generated-password" class="form-control" readonly>
-                            <button type="button" id="copy-password" class="btn btn-primary">Copiar</button>
-                        </div>
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="password" class="form-label">Senha</label>
-                        <input type="password" name="password" id="password" class="form-control">
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="password_confirmation" class="form-label">Confirmação da senha</label>
-                        <input type="password" name="password_confirmation" id="password_confirmation" class="form-control">
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="password-strength">Força da senha</label>
-                        <div id="password-strength" class="progress">
-                            <div id="strength-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
-                        </div>
+                        <label for="end_date">Data de término</label>
+                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ old('end_date', $vacation->end_date) }}">
                     </div>
 
                     <div class="form-group mt-3">

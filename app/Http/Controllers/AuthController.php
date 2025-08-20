@@ -70,7 +70,11 @@ class AuthController extends Controller
                 'regex:/[@$!%*?&]/'
             ]
         ], [
+            'name.required'      => 'O nome é obrigatório.',
+            'email.required'     => 'O e-mail é obrigatório.',
             'email.unique'       => 'E-mail já cadastrado.',
+            'role.required'      => 'O cargo é obrigatório.',
+            'password.required'  => 'A senha é obrigatória.',
             'password.regex'     => 'A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.',
             'password.min'       => 'A senha deve ter pelo menos 8 caracteres.',
             'password.confirmed' => 'As senhas não coincidem.'

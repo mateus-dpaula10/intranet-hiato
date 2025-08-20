@@ -31,6 +31,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ferias/create', [VacationController::class, 'create'])->name('vacation.create');    
         Route::post('/ferias/store', [VacationController::class, 'store'])->name('vacation.store');    
         Route::get('/ferias/edit/{vacation}', [VacationController::class, 'edit'])->name('vacation.edit');    
+        Route::patch('/ferias/edit/{vacation}', [VacationController::class, 'update'])->name('vacation.update');    
         Route::delete('/ferias/edit/{vacation}', [VacationController::class, 'destroy'])->name('vacation.destroy');    
     });
 });
