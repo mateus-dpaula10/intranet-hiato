@@ -31,16 +31,26 @@ class VacationController extends Controller
             'end_date'   => 'required|date|after_or_equal:start_date'
         ]);
 
-        $ownVacation = Vacation::where('user_id', $request->user_id)->get();
+        $start = Carbon::parse($request->start_date);
+        $end = Carbon::parse($request->end_date);
+        $daysRequested = $start->diffInDays($end) + 1;
 
-        if ($ownVacation->isNotEmpty() && !$request->has('confirm')) {
-            $names = $ownVacation->map(function ($v) {
-                $start = Carbon::parse($v->start_date)->format('d/m/Y');
-                $end = Carbon::parse($v->end_date)->format('d/m/Y');
-                return $v->user->name . " ({$start} até {$end})";
-            })->join(', ');
+        $vacationsLastYear = Vacation::where('user_id', $request->user_id)
+            ->where('end_date', '>=', $start->copy()->subDays(365))
+            ->get();
 
-            return back()->withInput()->with('warning', "Este colaborador já possui férias cadastradas: {$names}. Deseja confirmar mesmo assim?");
+        $daysUsed = $vacationsLastYear->sum(function ($v) {
+            return Carbon::parse($v->start_date)->diffInDays(Carbon::parse($v->end_date)) + 1;
+        });
+
+        $daysRemaining = 30 - $daysUsed;
+
+        if ($daysRequested > $daysRemaining && $daysUsed > 0 && !$request->has('confirm')) {
+            return back()->withInput()->with('warning', "O período selecionado ultrapassa o limite máximo de 30 dias de férias.");
+        }
+
+        if ($daysRequested > $daysRemaining && !$request->has('confirm')) {
+            return back()->withInput()->with('warning', "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses, restam apenas {$daysRemaining}. Deseja confirmar mesmo assim?");
         }
 
         $conflicts = Vacation::with('user')
@@ -85,6 +95,30 @@ class VacationController extends Controller
             'end_date'   => 'required|date|after_or_equal:start_date'
         ]);
 
+        $start = Carbon::parse($request->start_date);
+        $end = Carbon::parse($request->end_date);
+        $daysRequested = $start->diffInDays($end) + 1;
+
+        $vacationsLastYear = Vacation::where('user_id', $request->user_id)
+            ->where('id', '!=', $vacation->id)
+            ->where('end_date', '>=', $start->copy()->subDays(365))
+            ->get();
+
+        $daysUsed = $vacationsLastYear->sum(function ($v) {
+            return Carbon::parse($v->start_date)->diffInDays(Carbon::parse($v->end_date)) + 1;
+        });
+
+        $totalDaysAfterUpdate = $daysUsed + $daysRequested;
+        $daysRemaining = 30 - $daysUsed;
+
+        if ($daysUsed === 0 && $daysRequested > 30 && !$request->has('confirm')) {
+            return back()->withInput()->with('warning', "O período selecionado ultrapassa o limite máximo de 30 dias de férias.");
+        }
+
+        if ($totalDaysAfterUpdate > 30 && !$request->has('confirm')) {
+            return back()->withInput()->with('warning', "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses. Restam apenas {$daysRemaining} dias.");
+        }
+
         $conflict = Vacation::where('id', '!=', $vacation->id) 
             ->where('user_id', '!=', $request->user_id)
             ->where(function ($query) use ($request) {
@@ -98,9 +132,7 @@ class VacationController extends Controller
             ->exists();
 
         if ($conflict) {
-            return back()->withErrors([
-                'start_date' => 'Já existe outro colaborador de férias neste período.'
-            ])->withInput();
+            return back()->with('warning', 'Já existe outro colaborador de férias neste período.')->withInput();
         }
 
         $vacation->update($request->only('user_id', 'start_date', 'end_date'));
