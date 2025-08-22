@@ -48,6 +48,20 @@
                         <button class="btn btn-primary" type="submit">Salvar</button>
                     </div>
                 </form>
+
+                @if(session('warning'))
+                    <div class="alert alert-warning mt-3">
+                        {{ session('warning') }}
+                        <form method="POST" action="{{ route('vacation.store') }}" class="mt-2">
+                            @csrf
+                            <input type="hidden" name="user_id" value="{{ old('user_id') }}">
+                            <input type="hidden" name="start_date" value="{{ old('start_date') }}">
+                            <input type="hidden" name="end_date" value="{{ old('end_date') }}">
+                            <input type="hidden" name="confirm" value="1">
+                            <button type="submit" class="btn btn-danger">Confirmar mesmo assim</button>
+                        </form>
+                    </div>
+                @endif
             </div>
         </div>
     </div>

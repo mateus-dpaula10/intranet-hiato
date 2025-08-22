@@ -61,17 +61,17 @@
                     <div class="mt-3 d-none" id="div_admission_date">
                         <div class="form-group">
                             <label for="birth_date" class="form-label">Data de nascimento</label>
-                            <input type="date" name="birth_date" id="birth_date" class="form-control" value="{{ old('birth_date', $user->birth_date) }}">
+                            <input type="date" name="birth_date" id="birth_date" class="form-control" value="{{ old('birth_date', $user->birth_date) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
                         </div>
 
                         <div class="form-group mt-3">
-                            <label for="admission_date" class="form-label">Data de admissão</label>
-                            <input type="date" name="admission_date" id="admission_date" class="form-control" value="{{ old('admission_date', $user->admission_date) }}">
+                            <label for="admission_date" class="form-label">Data de admissão</label>                            
+                            <input type="date" name="admission_date" id="admission_date" class="form-control" value="{{ old('admission_date', $user->admission_date) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
                         </div>
 
                         <div class="form-group mt-3">
                             <label for="position" class="form-label">Cargo</label>
-                            <input type="text" name="position" id="position" class="form-control" value="{{ old('position', $user->position) }}">
+                            <input type="text" name="position" id="position" class="form-control" value="{{ old('position', $user->position) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
                         </div>
                     </div>
 

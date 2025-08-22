@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use App\Models\User;
 use App\Models\Vacation;
+use Carbon\Carbon;
 
 use Illuminate\Http\Request;
 
@@ -30,7 +31,20 @@ class VacationController extends Controller
             'end_date'   => 'required|date|after_or_equal:start_date'
         ]);
 
-        $conflict = Vacation::where('user_id', '!=', $request->user_id)
+        $ownVacation = Vacation::where('user_id', $request->user_id)->get();
+
+        if ($ownVacation->isNotEmpty() && !$request->has('confirm')) {
+            $names = $ownVacation->map(function ($v) {
+                $start = Carbon::parse($v->start_date)->format('d/m/Y');
+                $end = Carbon::parse($v->end_date)->format('d/m/Y');
+                return $v->user->name . " ({$start} até {$end})";
+            })->join(', ');
+
+            return back()->withInput()->with('warning', "Este colaborador já possui férias cadastradas: {$names}. Deseja confirmar mesmo assim?");
+        }
+
+        $conflicts = Vacation::with('user')
+            ->where('user_id', '!=', $request->user_id)
             ->where(function ($query) use ($request) {
                 $query->whereBetween('start_date', [$request->start_date, $request->end_date])
                     ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
@@ -39,10 +53,16 @@ class VacationController extends Controller
                             ->where('end_date', '>=', $request->end_date);
                     });
             })
-            ->exists();
+            ->get();
 
-        if ($conflict) {
-            return back()->withErrors(['start_date' => 'Já existe outro colaborador de férias neste período.'])->withInput();
+        if ($conflicts->isNotEmpty() && !$request->has('confirm')) {
+            $names = $conflicts->map(function ($v) {
+                $start = Carbon::parse($v->start_date)->format('d/m/Y');
+                $end = Carbon::parse($v->end_date)->format('d/m/Y');
+                return $v->user->name . " ({$start} até {$end})";
+            })->join(', ');
+
+            return back()->withInput()->with('warning', "Já existe(m) colaborador(es) de férias neste período: ${names}. Deseja confirmar mesmo assim?");
         }
 
         Vacation::create($request->only('user_id', 'start_date', 'end_date'));
@@ -86,5 +106,12 @@ class VacationController extends Controller
         $vacation->update($request->only('user_id', 'start_date', 'end_date'));
 
         return redirect()->route('vacation.index')->with('success', 'Período de férias atualizado com sucesso.');
+    }
+
+    public function destroy(Vacation $vacation)
+    {
+        $vacation->delete();
+
+        return redirect()->back()->with('success', 'Período de férias do colaborador "' . $vacation->user->name . '" removido com sucesso.');
     }
 }

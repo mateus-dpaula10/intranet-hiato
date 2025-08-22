@@ -94,7 +94,9 @@ class AuthController extends Controller
     }
 
     public function edit(User $user) {
-        return view ('user.edit', compact('user'));
+        $authUser = auth()->user();
+
+        return view ('user.edit', compact('user', 'authUser'));
     }
 
     public function update(Request $request, User $user) {

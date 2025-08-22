@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Diagnostic;
 use App\Models\Answer;
 use App\Models\Option;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class DiagnosticController extends Controller
@@ -15,14 +16,16 @@ class DiagnosticController extends Controller
     public function index()
     {
         $user = auth()->user();
-        $diagnostics = Diagnostic::with('options')->get();
-        $alreadyAnswered = Answer::where('user_id', $user->id)->exists();
 
-        if ($alreadyAnswered && $user->role === 'user') {
-            return redirect()->route('dashboard.index')->withErrors(['Você já respondeu esse diagnóstico.']);
+        if ($user->role === 'admin') {
+            $results = User::whereHas('answers')
+                ->withSum('answers', 'points')
+                ->get();
+        } else {
+            $results = $user->loadSum('answers', 'points');
         }
 
-        return view ('diagnostic.index', compact('diagnostics', 'user'));
+        return view ('diagnostic.index', compact('results', 'user'));
     }
 
     /**
@@ -30,7 +33,15 @@ class DiagnosticController extends Controller
      */
     public function create()
     {
-        //
+        $user = auth()->user();
+        $diagnostics = Diagnostic::with('options')->get();
+        $alreadyAnswered = Answer::where('user_id', $user->id)->exists();
+
+        if ($alreadyAnswered && $user->role === 'user') {
+            return redirect()->route('diagnostic.index')->withErrors(['Você já respondeu esse diagnóstico.']);
+        }
+
+        return view ('diagnostic.create', compact('diagnostics', 'user'));
     }
 
     /**
@@ -51,7 +62,7 @@ class DiagnosticController extends Controller
             ]);
         }
 
-        return redirect()->route('dashboard.index')->with('success', 'Respostas enviadas com sucesso.');
+        return redirect()->route('diagnostic.index')->with('success', 'Respostas enviadas com sucesso.');
     }
 
     /**

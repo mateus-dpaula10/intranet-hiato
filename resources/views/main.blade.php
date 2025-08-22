@@ -20,11 +20,9 @@
                     <li>
                         <a href="{{ route('dashboard.index') }}">Dashboard</a>
                     </li>
-                    @if(!auth()->user()->role === 'collaborator')
-                        <li>
-                            <a href="{{ route('diagnostic.index') }}">Diagnóstico</a>
-                        </li>
-                    @endif
+                    <li>
+                        <a href="{{ route('diagnostic.index') }}">Diagnóstico</a>
+                    </li>
                     @if(auth()->user()->role === 'admin')
                         <li>
                             <a href="{{ route('vacation.index') }}">Controle de férias</a>

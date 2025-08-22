@@ -14,12 +14,11 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
     Route::get('/usuarios', [AuthController::class, 'user'])->name('usuario.user');
     Route::get('/usuarios/edit/{user}', [AuthController::class, 'edit'])->name('usuario.edit');
-    Route::patch('/usuarios/edit/{user}', [AuthController::class, 'update'])->name('usuario.update');
+    Route::patch('/usuarios/edit/{user}', [AuthController::class, 'update'])->name('usuario.update');    
     
-    Route::middleware(['user'])->group(function () {
-        Route::get('/diagnostico', [DiagnosticController::class, 'index'])->name('diagnostic.index');
-        Route::post('/diagnostico', [DiagnosticController::class, 'store'])->name('diagnostic.store');
-    });
+    Route::get('/diagnostico', [DiagnosticController::class, 'index'])->name('diagnostic.index');
+    Route::get('/diagnostico/create', [DiagnosticController::class, 'create'])->name('diagnostic.create');
+    Route::post('/diagnostico', [DiagnosticController::class, 'store'])->name('diagnostic.store');    
 
     Route::middleware(['admin'])->group(function () {
         Route::get('/usuarios/create', [AuthController::class, 'create'])->name('usuario.create');
