@@ -27,7 +27,7 @@
                     
                     <div class="form-group">
                         <label for="user_id">Nome</label>
-                        <select name="user_id" id="user_id" class="form-select">
+                        <select name="user_id" id="user_id" class="form-select" required>
                             @foreach ($users as $user)
                                 <option value="{{ $user->id }}">{{ $user->name }}</option>
                             @endforeach
@@ -36,12 +36,12 @@
 
                     <div class="form-group mt-3">
                         <label for="start_date">Data de início</label>
-                        <input type="date" name="start_date" id="start_date" class="form-control">
+                        <input type="date" name="start_date" id="start_date" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">
                         <label for="end_date">Data de término</label>
-                        <input type="date" name="end_date" id="end_date" class="form-control">
+                        <input type="date" name="end_date" id="end_date" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">

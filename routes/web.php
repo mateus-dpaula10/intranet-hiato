@@ -20,13 +20,14 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/diagnostico/create', [DiagnosticController::class, 'create'])->name('diagnostic.create');
     Route::post('/diagnostico', [DiagnosticController::class, 'store'])->name('diagnostic.store');    
 
+    Route::get('/ferias', [VacationController::class, 'index'])->name('vacation.index');    
+    
     Route::middleware(['admin'])->group(function () {
         Route::get('/usuarios/create', [AuthController::class, 'create'])->name('usuario.create');
         Route::post('/usuarios', [AuthController::class, 'store'])->name('usuario.store');
         Route::delete('/usuarios/delete/{user}', [AuthController::class, 'destroy'])->name('usuario.destroy');    
         Route::get('/usuarios/{user}/respostas', [AuthController::class, 'respostas'])->name('usuario.respostas');    
         
-        Route::get('/ferias', [VacationController::class, 'index'])->name('vacation.index');    
         Route::get('/ferias/create', [VacationController::class, 'create'])->name('vacation.create');    
         Route::post('/ferias/store', [VacationController::class, 'store'])->name('vacation.store');    
         Route::get('/ferias/edit/{vacation}', [VacationController::class, 'edit'])->name('vacation.edit');    

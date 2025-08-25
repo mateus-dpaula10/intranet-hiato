@@ -9,11 +9,26 @@ use Illuminate\Http\Request;
 
 class VacationController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $vacations = Vacation::with('user')->orderBy('start_date', 'asc')->get();
+        $user = auth()->user();
 
-        return view ('vacation.index', compact('vacations'));
+        $query = Vacation::with('user');
+
+        if ($user->role !== 'admin') {
+            $query->where('user_id', $user->id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->whereHas('user', function($q) use ($search) {
+                $q->where('name', 'like', "%{$search}%");
+            });
+        }   
+
+        $vacations = $query->orderBy('start_date', 'desc')->get();
+
+        return view ('vacation.index', compact('vacations', 'user'));
     }
 
     public function create()
@@ -29,6 +44,9 @@ class VacationController extends Controller
             'user_id'    => 'required|exists:users,id',
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date'
+        ], [
+            'start_date.required' => 'Data de início é obrigatória.',
+            'end_date.required'   => 'Data de término é obrigatória.'
         ]);
 
         $start = Carbon::parse($request->start_date);
@@ -93,6 +111,9 @@ class VacationController extends Controller
             'user_id'    => 'required|exists:users,id',
             'start_date' => 'required|date',
             'end_date'   => 'required|date|after_or_equal:start_date'
+        ], [
+            'start_date.required' => 'Data de início é obrigatória.',
+            'end_date.required'   => 'Data de término é obrigatória.'
         ]);
 
         $start = Carbon::parse($request->start_date);
