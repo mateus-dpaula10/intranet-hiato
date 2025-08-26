@@ -34,7 +34,32 @@
                                                 </form>                                                
                                             @endif
                                         </li>  
-                                        @if ($vacations->count() > 1)
+                                        @if (!$loop->last)
+                                            <hr style="margin: .5rem 0">                                             
+                                        @endif
+                                    @endforeach
+                                </ul>
+                            </div>                            
+                        @endif
+                        
+                        @if ($feedbacks->isNotEmpty())
+                            <div class="alert alert-warning mt-4">
+                                <h5 class="mb-4">Aviso de feedback</h5>
+                                <ul class="p-0 m-0">
+                                    @foreach ($feedbacks as $feedback)
+                                        <li class="d-flex align-items-center justify-content-between">
+                                            <strong>{{ $feedback['user']->name }} - {{ $feedback['rule'] }}</strong>
+                                            <span>{{ $feedback['days_left'] }} dias restantes ({{ \Carbon\Carbon::parse($feedback['date'])->format('d/m/Y') }})</span>
+
+                                            {{-- @if ($authUser->role === 'admin')
+                                                <form action="{{ route('feedbacks.markAsRead', $feedback['user']) }}" method="POST">
+                                                    @csrf
+                                                    @method('PATCH')
+                                                    <button type="submit" class="btn btn-sm btn-warning">Marcar como lido</button>
+                                                </form>                                                
+                                            @endif --}}
+                                        </li>  
+                                        @if (!$loop->last)
                                             <hr style="margin: .5rem 0">                                             
                                         @endif
                                     @endforeach
@@ -43,7 +68,6 @@
                         @endif
                     </div>
                 </div>
-
             </div>
         </div>
     </div>

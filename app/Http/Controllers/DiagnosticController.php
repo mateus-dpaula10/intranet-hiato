@@ -13,19 +13,25 @@ class DiagnosticController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function index(Request $request)
     {
-        $user = auth()->user();
+        $authUser = auth()->user()->loadSum('answers', 'points');
 
-        if ($user->role === 'admin') {
-            $results = User::whereHas('answers')
-                ->withSum('answers', 'points')
-                ->get();
-        } else {
-            $results = $user->loadSum('answers', 'points');
-        }
+        $query = User::whereHas('answers')
+            ->withSum('answers', 'points');
 
-        return view ('diagnostic.index', compact('results', 'user'));
+        if ($authUser->role !== 'admin') {
+            $query->where('id', $authUser->id);
+        } 
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }  
+
+        $results = $query->orderByDesc('answers_sum_points')->get();
+
+        return view ('diagnostic.index', compact('results', 'authUser'));
     }
 
     /**

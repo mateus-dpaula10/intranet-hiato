@@ -27,13 +27,13 @@
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h3 class="mb-0">Diagnóstico</h3> 
 
-                    @if ($user->role === 'admin')
+                    @if ($authUser->role === 'admin')
                         <a href="{{ route('diagnostic.create') }}">
                             <i class="bi bi-eye me-2"></i>                        
                             Visualizar diagnóstico
                         </a>
                     @else
-                        @if ($user->answers_sum_points > 0)
+                        @if ($authUser->answers_sum_points > 0)
                             <span class="fw-bold">Você já respondeu esse diagnóstico.</span>
                         @else
                             <a href="{{ route('diagnostic.create') }}">
@@ -44,7 +44,17 @@
                     @endif                    
                 </div>                
                 
-                @if($user->role === 'admin')
+                @if($authUser->role === 'admin')
+                    <form method="GET" action="{{ route('diagnostic.index') }}" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Buscar colaborador..."
+                                value="{{ request('search') }}">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
                     <div class="table-responsive">
                         <table class="table table-hover align-middle">
                             <thead>
@@ -59,15 +69,15 @@
                                         if ($user->answers_sum_points < 12) {
                                             $bg = '#f8d7da';
                                             $color = '#842029';
-                                            $num = 'Fora';
+                                            $num = 'Baixo';
                                         } elseif ($user->answers_sum_points < 24) {
                                             $bg = '#fff3cd';
                                             $color = '#664d03';
-                                            $num = 'Tende a melhorar';
+                                            $num = 'Médio';
                                         } else {
                                             $bg = '#d1e7dd';
                                             $color = '#0f5132';
-                                            $num = 'Dentro';
+                                            $num = 'Alto';
                                         }
                                     @endphp
 
@@ -89,9 +99,9 @@
                         </table>
                     </div>
                 @else
-                    @if($user->answers_sum_points > 0)
+                    @if($authUser->answers_sum_points > 0)
                         <div class="alert alert-info">
-                            Sua pontuação: <strong>{{ $user->answers_sum_points }}</strong>
+                            Sua pontuação: <strong>{{ $authUser->answers_sum_points }}</strong>
                         </div>
                     @endif
                 @endif
