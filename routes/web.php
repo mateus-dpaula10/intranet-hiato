@@ -32,6 +32,7 @@ Route::middleware(['auth'])->group(function () {
         Route::post('/ferias/store', [VacationController::class, 'store'])->name('vacation.store');    
         Route::get('/ferias/edit/{vacation}', [VacationController::class, 'edit'])->name('vacation.edit');    
         Route::patch('/ferias/edit/{vacation}', [VacationController::class, 'update'])->name('vacation.update');    
-        Route::delete('/ferias/edit/{vacation}', [VacationController::class, 'destroy'])->name('vacation.destroy');    
+        Route::delete('/ferias/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacation.destroy');    
+        Route::patch('/ferias/{vacation}/markAsRead', [VacationController::class, 'markAsRead'])->name('vacations.markAsRead');    
     });
 });

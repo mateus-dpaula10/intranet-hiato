@@ -24,17 +24,25 @@
                     </div>
                 @endif
 
-                @php
-                    $user = auth()->user();
-                @endphp
-
                 <div class="d-flex justify-content-between align-items-center mb-5">
                     <h3 class="mb-0">Usuários</h3> 
-                    @if($user->role === 'admin')
+                    @if($authUser->role === 'admin')
                         <a href="{{ route('usuario.create') }}"><i class="bi bi-plus-square me-2"></i>Cadastrar usuário</a>
                     @endif
                 </div>
 
+                @if($authUser->role === 'admin')
+                    <form method="GET" action="{{ route('usuario.user') }}" class="mb-3">
+                        <div class="input-group">
+                            <input type="text" name="search" class="form-control"
+                                placeholder="Buscar colaborador..."
+                                value="{{ request('search') }}">
+                            <button class="btn btn-outline-primary" type="submit">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                @endif
                 <div class="table-responsive">
                     <table class="table table-success table-striped table-hover align-middle">
                         <thead>
@@ -46,31 +54,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @if($user->role === 'admin')
-                                @foreach($users as $user)
-                                    <tr>
-                                        <td>{{ $user->name }}</td>
-                                        <td>{{ $user->email }}</td>
-                                        @php
-                                            $role = match($user->role) {
-                                                'admin'        => 'Administrador',
-                                                'user'         => 'Usuário',
-                                                'collaborator' => 'Colaborador',
-                                                default        => ''
-                                            }
-                                        @endphp
-                                        <td>{{ $role }}</td>
-                                        <td class="d-flex gap-1">
-                                            <a class="btn btn-warning btn-sm" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                            <form action="{{ route('usuario.destroy', $user) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
-                                            </form>
-                                        </td>
-                                    </tr>
-                                @endforeach
-                            @else
+                            @foreach($users as $user)
                                 <tr>
                                     <td>{{ $user->name }}</td>
                                     <td>{{ $user->email }}</td>
@@ -83,11 +67,22 @@
                                         }
                                     @endphp
                                     <td>{{ $role }}</td>
-                                    <td>
-                                        <a class="btn btn-warning" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                    </td>
+                                    @if($authUser->role === 'admin')
+                                        <td class="d-flex gap-1">
+                                            <a class="btn btn-warning btn-sm" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                            <form action="{{ route('usuario.destroy', $user) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                            </form>
+                                        </td>
+                                    @else
+                                        <td>
+                                            <a class="btn btn-warning" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                        </td>
+                                    @endif
                                 </tr>
-                            @endif
+                            @endforeach
                         </tbody>
                     </table>
                 </div>

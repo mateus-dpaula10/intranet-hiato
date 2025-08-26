@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 use App\Models\User;
 
 use App\Models\Dashboard;
+use App\Models\Vacation;
 use Illuminate\Http\Request;
 
 class DashboardController extends Controller
@@ -13,11 +14,22 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $results = User::whereHas('answers')
-            ->withSum('answers', 'points')
+        $authUser = auth()->user();
+
+        $vacations = collect();
+
+        $vacations = Vacation::with('user')
+            ->whereBetween('start_date', [now(), now()->addDays(30)])
+            ->where('is_read', false)
+            ->when($authUser->role !== 'admin', function ($query) use ($authUser) {
+                $query->where('user_id', $authUser->id);
+            })
+            ->orderBy('start_date')
             ->get();
 
-        return view ('dashboard.index', compact('results'));
+        // $feedbacks = Feedback
+
+        return view ('dashboard.index', compact('authUser', 'vacations'));
     }
 
     /**

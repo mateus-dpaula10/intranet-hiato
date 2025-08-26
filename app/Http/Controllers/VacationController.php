@@ -167,4 +167,11 @@ class VacationController extends Controller
 
         return redirect()->back()->with('success', 'Período de férias do colaborador "' . $vacation->user->name . '" removido com sucesso.');
     }
+
+    public function markAsRead(Vacation $vacation)
+    {
+        $vacation->update(['is_read' => true]);
+
+        return redirect()->back()->with('success', 'Aviso de férias do colaborador "' . $vacation->user->name . '" marcado como lido.');
+    }
 }

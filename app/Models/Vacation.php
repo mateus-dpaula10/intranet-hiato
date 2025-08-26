@@ -9,7 +9,8 @@ class Vacation extends Model
     protected $fillable = [
         'start_date',
         'end_date',
-        'user_id'
+        'user_id',
+        'is_read'
     ];
 
     public function user()

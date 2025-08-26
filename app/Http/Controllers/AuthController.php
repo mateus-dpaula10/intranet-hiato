@@ -40,11 +40,23 @@ class AuthController extends Controller
         return redirect('/')->with('success', 'Deslogado com sucesso.');
     }
 
-    public function user() {
-        $user = auth()->user();
-        $users = User::all();
+    public function user(Request $request) {
+        $authUser = auth()->user();
+        
+        $query = User::query();
 
-        return view ('user.index', compact('user', 'users'));
+        if ($authUser->role !== 'admin') {
+            $query->where('id', $authUser->id);
+        }
+
+        if ($request->filled('search')) {
+            $search = $request->search;
+            $query->where('name', 'like', "%{$search}%");
+        }   
+
+        $users = $query->orderBy('name', 'asc')->get();
+
+        return view ('user.index', compact('authUser', 'users'));
     }
 
     public function create() {
