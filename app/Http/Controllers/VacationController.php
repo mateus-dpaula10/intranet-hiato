@@ -33,7 +33,7 @@ class VacationController extends Controller
 
     public function create()
     {
-        $users = User::where('role', 'collaborator')->orderBy('name', 'asc')->get();
+        $users = User::orderBy('name', 'asc')->get();
 
         return view ('vacation.create', compact('users'));
     }

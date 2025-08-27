@@ -58,6 +58,10 @@ class User extends Authenticatable
         return $this->role === 'user';
     }
 
+    public function isColab() {
+        return $this->role === 'collaborator';
+    }
+
     public function answers() {
         return $this->hasMany(Answer::class);
     }

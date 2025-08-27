@@ -5,23 +5,33 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiagnosticController;
 use App\Http\Controllers\VacationController;
+use App\Http\Controllers\FeedbackController;
 
 Route::get('/', [AuthController::class, 'index'])->name('auth.index');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
 Route::middleware(['auth'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
-    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
-    Route::get('/usuarios', [AuthController::class, 'user'])->name('usuario.user');
-    Route::get('/usuarios/edit/{user}', [AuthController::class, 'edit'])->name('usuario.edit');
-    Route::patch('/usuarios/edit/{user}', [AuthController::class, 'update'])->name('usuario.update');    
     
     Route::get('/diagnostico', [DiagnosticController::class, 'index'])->name('diagnostic.index');
     Route::get('/diagnostico/create', [DiagnosticController::class, 'create'])->name('diagnostic.create');
-    Route::post('/diagnostico', [DiagnosticController::class, 'store'])->name('diagnostic.store');    
-
-    Route::get('/ferias', [VacationController::class, 'index'])->name('vacation.index');    
+    Route::post('/diagnostico', [DiagnosticController::class, 'store'])->name('diagnostic.store');        
     
+    Route::middleware(['collaborator', 'admin'])->group(function () {
+        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+        Route::get('/usuarios', [AuthController::class, 'user'])->name('usuario.user');
+        Route::get('/usuarios/edit/{user}', [AuthController::class, 'edit'])->name('usuario.edit');
+        Route::patch('/usuarios/edit/{user}', [AuthController::class, 'update'])->name('usuario.update');    
+
+        Route::get('/ferias', [VacationController::class, 'index'])->name('vacation.index'); 
+        
+        Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');    
+    });
+    
+    Route::middleware(['collaborator'])->group(function () {
+
+    });
+
     Route::middleware(['admin'])->group(function () {
         Route::get('/usuarios/create', [AuthController::class, 'create'])->name('usuario.create');
         Route::post('/usuarios', [AuthController::class, 'store'])->name('usuario.store');

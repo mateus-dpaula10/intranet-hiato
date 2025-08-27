@@ -17,18 +17,22 @@
                 </a>
     
                 <ul>
-                    <li>
-                        <a href="{{ route('dashboard.index') }}">Dashboard</a>
-                    </li>
+                    @if (auth()->user->role !== 'user')
+                        <li>
+                            <a href="{{ route('dashboard.index') }}">Dashboard</a>
+                        </li>
+                    @endif
                     <li>
                         <a href="{{ route('diagnostic.index') }}">Diagnóstico</a>
                     </li>
-                    <li>
-                        <a href="{{ route('vacation.index') }}">Férias</a>
-                    </li>
-                    <li>
-                        <a href="{{ route('usuario.user') }}">Usuários</a>
-                    </li>
+                    @if (auth()->user->role !== 'user')
+                        <li>
+                            <a href="{{ route('vacation.index') }}">Férias</a>
+                        </li>                        
+                        <li>
+                            <a href="{{ route('usuario.user') }}">Usuários</a>
+                        </li>
+                    @endif
                     <li>
                         <form action="{{ route('auth.logout') }}" method="POST">
                             @csrf
