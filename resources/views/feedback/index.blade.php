@@ -49,7 +49,9 @@
                             <tr>
                                 <th>Usuário</th>
                                 <th>Data da realização</th>
-                                <th>Ações</th>
+                                @if ($authUser->role === 'admin')
+                                    <th>Ações</th>
+                                @endif
                             </tr>
                         </thead>
                         <tbody>
@@ -61,14 +63,16 @@
                                             <td data-bs-toggle="modal" data-bs-target="#feedbackModal{{ $feedback->id }}" style="cursor: pointer">{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</td>                                            
                                         @endif
                                     @endforeach
-                                    <td class="d-flex gap-1">
-                                        <a class="btn btn-warning btn-sm" href="{{ route('feedback.edit', $feedback) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                        <form action="{{ route('feedback.destroy', $feedback) }}" method="POST">
-                                            @csrf
-                                            @method('DELETE')
-                                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
-                                        </form>
-                                    </td>
+                                    @if ($authUser->role === 'admin')
+                                        <td class="d-flex gap-1">
+                                            <a class="btn btn-warning btn-sm" href="{{ route('feedback.edit', $feedback) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                            <form action="{{ route('feedback.destroy', $feedback) }}" method="POST">
+                                                @csrf
+                                                @method('DELETE')
+                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                            </form>
+                                        </td>
+                                    @endif
                                 </tr>
 
                                 <div class="modal fade" id="feedbackModal{{ $feedback->id }}" tabindex="-1" aria-labelledby="feedbackModalLabel{{ $feedback->id }}" aria-hidden="true">
