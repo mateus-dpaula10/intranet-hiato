@@ -17,22 +17,24 @@ Route::middleware(['auth'])->group(function () {
     Route::get('/diagnostico/create', [DiagnosticController::class, 'create'])->name('diagnostic.create');
     Route::post('/diagnostico', [DiagnosticController::class, 'store'])->name('diagnostic.store');        
     
-    Route::middleware(['collaborator', 'admin'])->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard', [DashboardController::class, 'index'])->name('dashboard.index');
+    Route::get('/dashboard/agradecimento', [DashboardController::class, 'agradecimento'])->name('dashboard.agradecimento');
+
+    Route::middleware(['role:collaborator,admin'])->group(function () {
         Route::get('/usuarios', [AuthController::class, 'user'])->name('usuario.user');
         Route::get('/usuarios/edit/{user}', [AuthController::class, 'edit'])->name('usuario.edit');
         Route::patch('/usuarios/edit/{user}', [AuthController::class, 'update'])->name('usuario.update');    
 
         Route::get('/ferias', [VacationController::class, 'index'])->name('vacation.index'); 
         
-        Route::get('/feedback', [FeedbackController::class, 'index'])->name('feedback.index');    
+        Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('feedback.index');    
     });
     
-    Route::middleware(['collaborator'])->group(function () {
+    Route::middleware(['role:collaborator'])->group(function () {
 
     });
 
-    Route::middleware(['admin'])->group(function () {
+    Route::middleware(['role:admin'])->group(function () {
         Route::get('/usuarios/create', [AuthController::class, 'create'])->name('usuario.create');
         Route::post('/usuarios', [AuthController::class, 'store'])->name('usuario.store');
         Route::delete('/usuarios/delete/{user}', [AuthController::class, 'destroy'])->name('usuario.destroy');    
@@ -44,5 +46,11 @@ Route::middleware(['auth'])->group(function () {
         Route::patch('/ferias/edit/{vacation}', [VacationController::class, 'update'])->name('vacation.update');    
         Route::delete('/ferias/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacation.destroy');    
         Route::patch('/ferias/{vacation}/markAsRead', [VacationController::class, 'markAsRead'])->name('vacations.markAsRead');    
+
+        Route::get('/feedbacks/create', [FeedbackController::class, 'create'])->name('feedback.create');    
+        Route::post('/feedbacks/store', [FeedbackController::class, 'store'])->name('feedback.store');    
+        Route::get('/feedbacks/edit/{feedback}', [FeedbackController::class, 'edit'])->name('feedback.edit');    
+        Route::patch('/feedbacks/edit/{feedback}', [FeedbackController::class, 'update'])->name('feedback.update');    
+        Route::delete('/feedbacks/delete/{feedback}', [FeedbackController::class, 'destroy'])->name('feedback.destroy');    
     });
 });

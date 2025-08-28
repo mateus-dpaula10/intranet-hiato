@@ -17,7 +17,11 @@ class DashboardController extends Controller
     {
         $authUser = auth()->user();
 
-        $vacations = collect();
+        if ($authUser->role === 'user' && !$authUser->answers()->exists()) {
+            return redirect()->route('diagnostic.index');
+        } elseif ($authUser->role === 'user' && $authUser->answers()->exists()) {
+            return redirect()->route('dashboard.agradecimento');
+        }
 
         $vacations = Vacation::with('user')
             ->whereBetween('start_date', [now(), now()->addDays(30)])
@@ -75,52 +79,9 @@ class DashboardController extends Controller
 
         return view ('dashboard.index', compact('authUser', 'vacations', 'feedbacks'));
     }
-
-    /**
-     * Show the form for creating a new resource.
-     */
-    public function create()
+    
+    public function agradecimento() 
     {
-        //
-    }
-
-    /**
-     * Store a newly created resource in storage.
-     */
-    public function store(Request $request)
-    {
-        //
-    }
-
-    /**
-     * Display the specified resource.
-     */
-    public function show(Dashboard $dashboard)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Dashboard $dashboard)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, Dashboard $dashboard)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(Dashboard $dashboard)
-    {
-        //
+        return view ('dashboard.agradecimento');
     }
 }

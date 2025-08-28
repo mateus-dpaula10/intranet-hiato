@@ -17,7 +17,7 @@
                 </a>
     
                 <ul>
-                    @if (auth()->user->role !== 'user')
+                    @if (auth()->user()->role !== 'user')
                         <li>
                             <a href="{{ route('dashboard.index') }}">Dashboard</a>
                         </li>
@@ -25,12 +25,15 @@
                     <li>
                         <a href="{{ route('diagnostic.index') }}">Diagnóstico</a>
                     </li>
-                    @if (auth()->user->role !== 'user')
+                    @if (auth()->user()->role !== 'user')
                         <li>
                             <a href="{{ route('vacation.index') }}">Férias</a>
                         </li>                        
                         <li>
                             <a href="{{ route('usuario.user') }}">Usuários</a>
+                        </li>
+                        <li>
+                            <a href="{{ route('feedback.index') }}">Feedbacks</a>
                         </li>
                     @endif
                     <li>

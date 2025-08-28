@@ -69,4 +69,8 @@ class User extends Authenticatable
     public function vacation() {
         return $this->belongsTo(Vacation::class);
     }
+
+    public function feedback() {
+        return $this->belongsTo(Feedback::class);
+    }
 }

@@ -20,8 +20,6 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
-        Route::aliasMiddleware('admin', \App\Http\Middleware\IsAdmin::class);
-        Route::aliasMiddleware('user', \App\Http\Middleware\IsUser::class);
-        Route::aliasMiddleware('collaborator', \App\Http\Middleware\IsColab::class);
+        Route::aliasMiddleware('role', \App\Http\Middleware\RoleMiddleware::class);
     }
 }

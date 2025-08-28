@@ -56,7 +56,7 @@
                         </div>
                     </form>
                     <div class="table-responsive">
-                        <table class="table table-hover align-middle">
+                        <table class="table table-striped table-hover align-middle">
                             <thead>
                                 <tr>
                                     <th class="bg-secondary text-white">Usuário</th>
@@ -109,11 +109,11 @@
         </div>
     </div>
 
-    <div class="modal fade modal-xl" id="viewModalQuestions" tabindex="-1" aria-labelledby="viewModalQuestionsLabel" aria-hidden="true">
+    <div class="modal fade" id="viewModalQuestions" tabindex="-1" aria-labelledby="viewModalQuestionsLabel" aria-hidden="true">
         <div class="modal-dialog modal-dialog-centered modal-xl">
             <div class="modal-content">
                 <div class="modal-header">
-                    <h1 class="modal-title fs-5" id="viewModalQuestionsLabel">Respostas do Usuário</h1>
+                    <h1 class="modal-title fs-5" id="viewModalQuestionsLabel">Visualização das respostas</h1>
                     <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                 </div>
                 <div class="modal-body" id="modalQuestionsContent">

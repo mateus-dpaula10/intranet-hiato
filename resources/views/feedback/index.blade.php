@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Usuários')
+@section('title', 'Feedbacks')
 
 @section('content')
     <div class="container-fluid">
@@ -25,9 +25,9 @@
                 @endif
 
                 <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h3 class="mb-0">Usuários</h3> 
+                    <h3 class="mb-0">Feedbacks</h3> 
                     @if($authUser->role === 'admin')
-                        <a href="{{ route('usuario.create') }}"><i class="bi bi-plus-square me-2"></i>Cadastrar usuário</a>
+                        <a href="{{ route('feedback.create') }}"><i class="bi bi-plus-square me-2"></i>Cadastrar feedback</a>
                     @endif
                 </div>
 
@@ -48,40 +48,56 @@
                         <thead>
                             <tr>
                                 <th>Usuário</th>
-                                <th>E-mail</th>
-                                <th>Função</th>
+                                <th>Data da realização</th>
                                 <th>Ações</th>
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($users as $user)
+                            @foreach ($feedbacks as $feedback)
                                 <tr>
-                                    <td>{{ $user->name }}</td>
-                                    <td>{{ $user->email }}</td>
-                                    @php
-                                        $role = match($user->role) {
-                                            'admin'        => 'Administrador',
-                                            'user'         => 'Usuário',
-                                            'collaborator' => 'Colaborador',
-                                            default        => ''
-                                        }
-                                    @endphp
-                                    <td>{{ $role }}</td>
-                                    @if($authUser->role === 'admin')
-                                        <td class="d-flex gap-1">
-                                            <a class="btn btn-warning btn-sm" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                            <form action="{{ route('usuario.destroy', $user) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
-                                            </form>
-                                        </td>
-                                    @else
-                                        <td>
-                                            <a class="btn btn-warning" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                        </td>
-                                    @endif
+                                    <td data-bs-toggle="modal" data-bs-target="#feedbackModal{{ $feedback->id }}" style="cursor: pointer">{{ $feedback->user->name }}</td>
+                                    @foreach ($feedback->completion_dates as $index => $date)
+                                        @if ($loop->last)
+                                            <td data-bs-toggle="modal" data-bs-target="#feedbackModal{{ $feedback->id }}" style="cursor: pointer">{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</td>                                            
+                                        @endif
+                                    @endforeach
+                                    <td class="d-flex gap-1">
+                                        <a class="btn btn-warning btn-sm" href="{{ route('feedback.edit', $feedback) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                        <form action="{{ route('feedback.destroy', $feedback) }}" method="POST">
+                                            @csrf
+                                            @method('DELETE')
+                                            <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                        </form>
+                                    </td>
                                 </tr>
+
+                                <div class="modal fade" id="feedbackModal{{ $feedback->id }}" tabindex="-1" aria-labelledby="feedbackModalLabel{{ $feedback->id }}" aria-hidden="true">
+                                    <div class="modal-dialog modal-dialog-centered modal-xl">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title" id="feedbackModalLabel{{ $feedback->id }}">
+                                                    Visualização do(s) feedback(s)
+                                                </h5>
+                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                                            </div>
+                                            <div class="modal-body">
+                                                @foreach ($feedback->completion_dates as $index => $date)
+                                                    <div class="mb-4 border-bottom pb-3">
+                                                        <div class="form-group">
+                                                            <label>Data de realização</label>
+                                                            <input readonly class="form-control" value="{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}">
+                                                        </div>
+                                    
+                                                        <div class="form-group mt-3">
+                                                            <label>Descrição</label>
+                                                            <textarea class="form-control" rows="5" readonly>{{ $feedback->descriptions[$index] ?? '---' }}</textarea>
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             @endforeach
                         </tbody>
                     </table>

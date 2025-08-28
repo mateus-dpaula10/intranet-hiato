@@ -6,7 +6,7 @@
 }
 
 body#login {
-  background-color: #6D0098 !important;
+  background-color: #765EAC !important;
   min-height: 100vh;
   display: flex;
   flex-direction: column;
@@ -46,18 +46,16 @@ body#login #block_login button.btn:hover {
 }
 
 body#dashboard {
-  background-color: #6D0098;
+  background-color: #765EAC;
 }
 body#dashboard > div {
   display: flex;
   gap: 3rem;
-  padding: 0.5rem 0.5rem 0.5rem 0;
 }
 body#dashboard > div aside {
   background-color: #FFF;
   width: 240px;
   margin-left: 0;
-  border-radius: 0 0 0.2rem 0;
   padding: 1rem 0;
   position: relative;
   transition: margin-left 0.35s ease-in-out;
@@ -109,16 +107,13 @@ body#dashboard > div aside button#toggle_button {
   top: 0;
   right: -40px;
   border: 0;
-  border-radius: 0 0.2rem 0.2rem 0;
   background-color: #FFF;
   font-size: 1.3rem;
 }
 body#dashboard > div main {
   background-color: #FFF;
-  border-radius: 0.2rem 0 0 0.2rem;
   padding: 1rem 0;
-  flex-basis: 0;
-  flex-grow: 1;
-  height: 95dvh;
+  flex: 1 1 100%;
+  height: 100dvh;
   overflow: auto;
 }/*# sourceMappingURL=style.css.map */

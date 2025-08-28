@@ -17,12 +17,15 @@ class DiagnosticController extends Controller
     {
         $authUser = auth()->user()->loadSum('answers', 'points');
 
+        $hasAlreadyAnswered = $authUser->answers_sum_points > 0;
+        $isAdmin = $authUser->role === 'admin';
+
+        if (!$isAdmin && $hasAlreadyAnswered) {
+            return redirect()->route('dashboard.index')->with('success', "Diagnóstico de perfil de cultura já respondido pelo colaborador '{$authUser->name}'");
+        }
+
         $query = User::whereHas('answers')
             ->withSum('answers', 'points');
-
-        if ($authUser->role !== 'admin') {
-            $query->where('id', $authUser->id);
-        } 
 
         if ($request->filled('search')) {
             $search = $request->search;
@@ -68,7 +71,7 @@ class DiagnosticController extends Controller
             ]);
         }
 
-        return redirect()->route('diagnostic.index')->with('success', 'Respostas enviadas com sucesso.');
+        return redirect()->route('dashboard.index')->with('success', "Diagnóstico de perfil de cultura já respondido pelo colaborador '{$user->name}'");
     }
 
     /**

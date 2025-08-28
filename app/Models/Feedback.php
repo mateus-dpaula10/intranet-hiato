@@ -6,5 +6,21 @@ use Illuminate\Database\Eloquent\Model;
 
 class Feedback extends Model
 {
-    //
+    protected $table = 'feedbacks';
+
+    protected $fillable = [
+        'user_id',
+        'completion_dates',
+        'descriptions'
+    ];
+
+    protected $casts = [
+        'completion_dates' => 'array',
+        'descriptions'     => 'array'
+    ];
+
+    public function user()
+    {
+        return $this->belongsTo(User::class);
+    }
 }
