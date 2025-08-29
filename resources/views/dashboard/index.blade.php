@@ -29,11 +29,11 @@
                 </div>
 
                 <div class="row">
-                    <div class="col-lg-8">
+                    <div class="col-lg-7">
                         
                     </div>
 
-                    <div class="col-lg-4">
+                    <div class="col-lg-5">
                         <h4>Notificações</h4>
                         
                         @if ($vacations->isNotEmpty())

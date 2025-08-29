@@ -42,6 +42,7 @@ class DashboardController extends Controller
             $admission = Carbon::parse($user->admission_date);
 
             $feedbackPeriods = [
+                '1 mês'   => $admission->copy()->addMonth(),
                 '3 meses' => $admission->copy()->addMonths(3),
                 '6 meses' => $admission->copy()->addMonths(6),
                 '1 ano'   => $admission->copy()->addYear()
