@@ -44,12 +44,12 @@
                     </li>
                 </ul>
             </nav>
-            <button type="button" id="toggle_button">
-                <i class="bi bi-list"></i>
-            </button>
         </aside>
     
         <main>
+            <button type="button" id="toggle_button">
+                <i class="bi bi-list"></i>
+            </button>
             @yield('content')
         </main>
     </div>

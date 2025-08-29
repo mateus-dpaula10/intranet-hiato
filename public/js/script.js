@@ -3,10 +3,12 @@ document.addEventListener('DOMContentLoaded', function() {
     const aside = document.querySelector('aside');   
     const btnShowPassword =  document.getElementById('btnShowPassword');
     const passwordLogin = document.getElementById('password');
+    const divDashboard = document.querySelector('#dashboard > div');
 
     if (toggleButton) {
         toggleButton.addEventListener('click', function() {
             aside.classList.toggle('opened');
+            divDashboard.classList.toggle('opened');
         });
     }
 

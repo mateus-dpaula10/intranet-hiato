@@ -11,11 +11,13 @@ class Feedback extends Model
     protected $fillable = [
         'user_id',
         'completion_dates',
+        'types',
         'descriptions'
     ];
 
     protected $casts = [
         'completion_dates' => 'array',
+        'types'            => 'array',
         'descriptions'     => 'array'
     ];
 

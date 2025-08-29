@@ -32,7 +32,7 @@
                 </div>
 
                 @if($authUser->role === 'admin')
-                    <form method="GET" action="{{ route('usuario.user') }}" class="mb-3">
+                    <form method="GET" action="{{ route('feedback.index') }}" class="mb-3">
                         <div class="input-group">
                             <input type="text" name="search" class="form-control"
                                 placeholder="Buscar colaborador..."
@@ -49,6 +49,7 @@
                             <tr>
                                 <th>Usuário</th>
                                 <th>Data da realização</th>
+                                <th>Tipo do feedback</th>
                                 @if ($authUser->role === 'admin')
                                     <th>Ações</th>
                                 @endif
@@ -62,7 +63,22 @@
                                         @if ($loop->last)
                                             <td data-bs-toggle="modal" data-bs-target="#feedbackModal{{ $feedback->id }}" style="cursor: pointer">{{ \Carbon\Carbon::parse($date)->format('d/m/Y') }}</td>                                            
                                         @endif
-                                    @endforeach
+                                    @endforeach      
+                                    @foreach ($feedback->types as $index => $type)
+                                        @php
+                                            $typeFeedback = match($type) {
+                                                'mounth_one'   => '1 mês',
+                                                'mounth_three' => '3 meses',
+                                                'mounth_six'   => '6 meses',
+                                                'year_one'     => '1 ano',
+                                                'yearly'       => 'Anual',
+                                                'default'      => $type
+                                            };
+                                        @endphp
+                                        @if ($loop->last)
+                                            <td data-bs-toggle="modal" data-bs-target="#feedbackModal{{ $feedback->id }}" style="cursor: pointer">{{ $typeFeedback }}</td>                                            
+                                        @endif
+                                    @endforeach      
                                     @if ($authUser->role === 'admin')
                                         <td class="d-flex gap-1">
                                             <a class="btn btn-warning btn-sm" href="{{ route('feedback.edit', $feedback) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>

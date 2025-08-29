@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('feedbacks', function (Blueprint $table) {
             $table->id();
             $table->json('completion_dates');
+            $table->json('types');
             $table->json('descriptions');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();

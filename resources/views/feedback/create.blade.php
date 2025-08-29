@@ -37,12 +37,24 @@
                     <div id="feedback-fields">
                         <div class="feedback-entry border p-3 mt-3">
                             <div class="form-group">
-                                <label for="completion_date">Data de realização</label>
+                                <label class="form-label">Data da realização</label>
                                 <input type="date" name="completion_date[]" class="form-control" required>
+                            </div>
+
+                            <div class="form-group mt-3">
+                                <label class="form-label">Tipo</label>
+                                <select name="type[]" class="form-control" required>
+                                    <option value="">Selecione um tipo de feedback</option>
+                                    <option value="mounth_one">1 mês</option>
+                                    <option value="mounth_three">3 meses</option>
+                                    <option value="mounth_six">6 meses</option>
+                                    <option value="year_one">1 ano</option>
+                                    <option value="yearly">Anual</option>
+                                </select>
                             </div>
         
                             <div class="form-group mt-3">
-                                <label for="description">Descrição</label>
+                                <label class="form-label">Descrição</label>
                                 <textarea name="description[]" class="form-control" rows="10" required></textarea>
                             </div>
                         </div>

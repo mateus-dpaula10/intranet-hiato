@@ -41,7 +41,7 @@
                                 <h5 class="mb-4">Aviso de férias dos próximos dias até @php $now = now()->addDays(30) @endphp {{ Carbon\Carbon::parse($now)->format('d/m/Y') }}</h5>
                                 <ul class="p-0 m-0">
                                     @foreach ($vacations as $vacation)
-                                        <li class="d-flex align-items-center justify-content-between">
+                                        <li class="d-flex align-items-center justify-content-between gap-1">
                                             <strong>{{ $vacation->user->name }} - {{ \Carbon\Carbon::parse($vacation->start_date)->format('d/m/Y') }}</strong>
 
                                             @if ($authUser->role === 'admin')
@@ -65,7 +65,7 @@
                                 <h5 class="mb-4">Aviso de feedback</h5>
                                 <ul class="p-0 m-0">
                                     @foreach ($feedbacks as $feedback)
-                                        <li class="d-flex align-items-center justify-content-between">
+                                        <li class="d-flex align-items-center justify-content-between gap-1">
                                             <strong>{{ $feedback['user']->name }} - {{ $feedback['rule'] }}</strong>
                                             <span>{{ $feedback['days_left'] }} dias restantes ({{ \Carbon\Carbon::parse($feedback['date'])->format('d/m/Y') }})</span>
 

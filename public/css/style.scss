@@ -60,14 +60,26 @@ body#dashboard {
     
     > div {
         display: flex;
-        gap: 3rem;
+        gap: 10px;
+        transition: gap .35s ease-in-out;
+
+        &.opened {
+            gap: 0;
+        }
+
+        @media (max-width: 768px) {
+            gap: 0;
+
+            &.opened {
+                gap: 10px;
+            }   
+        }
 
         aside {
             background-color: #FFF;
             width: 240px;
             margin-left: 0;
             padding: 1rem 0;
-            position: relative;
             transition: margin-left .35s ease-in-out;
 
             &.opened {
@@ -114,25 +126,27 @@ body#dashboard {
                     }
                 }
             }    
-
-            button#toggle_button {
-                position: absolute;
-                width: 40px;
-                height: 40px;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                top: 0;
-                right: -40px;
-                border: 0;
-                background-color: #FFF;
-                font-size: 1.3rem;
-            }
         }
     
         main {
+            position: relative;
+
+            button#toggle_button {
+                position: absolute;
+                width: 50px;
+                height: 50px;
+                top: 0;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                background-color: #FFF;
+                color: $roxo_hiato;
+                border: 0;
+                font-size: 1.3rem;
+            }
+
             background-color: #FFF; 
-            padding: 1rem 0;
+            padding: 50px 0;
             flex: 1 1 100%;
             height: 100dvh;
             overflow: auto;

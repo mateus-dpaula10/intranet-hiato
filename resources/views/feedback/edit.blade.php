@@ -43,6 +43,17 @@
                                     <label for="completion_date">Data de realização</label>
                                     <input type="date" name="completion_date[]" class="form-control" value="{{ $date }}" required>
                                 </div>
+
+                                <div class="form-group mt-3">
+                                    <label class="form-label">Tipo</label>
+                                    <select name="type[]" class="form-control" required>
+                                        <option value="mounth_one" {{ ($feedback->types[$index] ?? '' ) === 'mounth_one' ? 'selected' : '' }}>1 mês</option>
+                                        <option value="mounth_three" {{ ($feedback->types[$index] ?? '' ) === 'mounth_three' ? 'selected' : '' }}>3 meses</option>
+                                        <option value="mounth_six" {{ ($feedback->types[$index] ?? '' ) === 'mounth_six' ? 'selected' : '' }}>6 meses</option>
+                                        <option value="year_one" {{ ($feedback->types[$index] ?? '' ) === 'year_one' ? 'selected' : '' }}>1 ano</option>
+                                        <option value="yearly" {{ ($feedback->types[$index] ?? '' ) === 'yearly' ? 'selected' : '' }}>Anual</option>
+                                    </select>
+                                </div>
             
                                 <div class="form-group mt-3">
                                     <label for="description">Descrição</label>
@@ -50,6 +61,10 @@
                                 </div>
                             </div>                            
                         @endforeach
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <button class="btn btn-secondary" type="button" onclick="addFeedbackEntry()">Adicionar outro feedback</button>
                     </div>
 
                     <div class="form-group mt-3">
@@ -62,5 +77,13 @@
 @endsection
 
 @push('scripts')
-    
+    <script>
+        function addFeedbackEntry() {
+            const container = document.getElementById('feedback-fields');
+            const entry = container.querySelector('.feedback-entry');
+            const clone = entry.cloneNode(true);
+
+            container.appendChild(clone);
+        }[]
+    </script>
 @endpush

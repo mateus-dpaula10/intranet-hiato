@@ -12,14 +12,8 @@ class FeedbackController extends Controller
     public function index(Request $request) {
         $authUser = auth()->user();
 
-        // $query = Feedback::select('feedbacks.*')
-        //     ->join('users', 'users.id', '=', 'feedbacks.user_id')
-        //     ->with('user');
         $query = Feedback::with('user');
-
-        // if ($authUser->role !== 'admin') {
-        //     $query->where('feedbacks.user_id', $authUser->id);
-        // }
+        
         if ($authUser->role !== 'admin') {
             $query->where('user_id', $authUser->id);
         }
@@ -30,8 +24,7 @@ class FeedbackController extends Controller
                 $q->where('name', 'like', "%{$search}%");
             });
         }   
-
-        // $feedbacks = $query->orderBy('users.name')->get();
+        
         $feedbacks = $query->get();
 
         return view ('feedback.index', compact('authUser', 'feedbacks'));
@@ -48,6 +41,8 @@ class FeedbackController extends Controller
             'user_id'           => 'required|exists:users,id',
             'completion_date'   => 'required|array|min:1',
             'completion_date.*' => 'required|date',
+            'type'              => 'required|array|min:1',
+            'type.*'            => 'required|string',
             'description'       => 'required|array|min:1',
             'description.*'     => 'required|string'
         ]);
@@ -57,6 +52,7 @@ class FeedbackController extends Controller
         Feedback::create([
             'user_id'          => $validated['user_id'],
             'completion_dates' => $validated['completion_date'],
+            'types'            => $validated['type'],
             'descriptions'     => $validated['description']
         ]);
 
@@ -74,6 +70,8 @@ class FeedbackController extends Controller
             'user_id'           => 'required|exists:users,id',
             'completion_date'   => 'required|array|min:1',
             'completion_date.*' => 'required|date',
+            'type'              => 'required|array|min:1',
+            'type.*'            => 'required|string',
             'description'       => 'required|array|min:1',
             'description.*'     => 'required|string'
         ]);
@@ -81,6 +79,7 @@ class FeedbackController extends Controller
         $feedback->update([
             'user_id'          => $validated['user_id'],
             'completion_dates' => $validated['completion_date'],
+            'types'            => $validated['type'],
             'descriptions'     => $validated['description']
         ]);
 

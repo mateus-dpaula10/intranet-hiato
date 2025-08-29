@@ -50,14 +50,25 @@ body#dashboard {
 }
 body#dashboard > div {
   display: flex;
-  gap: 3rem;
+  gap: 10px;
+  transition: gap 0.35s ease-in-out;
+}
+body#dashboard > div.opened {
+  gap: 0;
+}
+@media (max-width: 768px) {
+  body#dashboard > div {
+    gap: 0;
+  }
+  body#dashboard > div.opened {
+    gap: 10px;
+  }
 }
 body#dashboard > div aside {
   background-color: #FFF;
   width: 240px;
   margin-left: 0;
   padding: 1rem 0;
-  position: relative;
   transition: margin-left 0.35s ease-in-out;
 }
 body#dashboard > div aside.opened {
@@ -97,23 +108,24 @@ body#dashboard > div aside nav ul li a, body#dashboard > div aside nav ul li but
   text-align: center;
   border: 0;
 }
-body#dashboard > div aside button#toggle_button {
-  position: absolute;
-  width: 40px;
-  height: 40px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  top: 0;
-  right: -40px;
-  border: 0;
-  background-color: #FFF;
-  font-size: 1.3rem;
-}
 body#dashboard > div main {
+  position: relative;
   background-color: #FFF;
-  padding: 1rem 0;
+  padding: 50px 0;
   flex: 1 1 100%;
   height: 100dvh;
   overflow: auto;
+}
+body#dashboard > div main button#toggle_button {
+  position: absolute;
+  width: 50px;
+  height: 50px;
+  top: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #FFF;
+  color: #765EAC;
+  border: 0;
+  font-size: 1.3rem;
 }/*# sourceMappingURL=style.css.map */
