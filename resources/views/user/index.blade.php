@@ -68,13 +68,15 @@
                                     @endphp
                                     <td>{{ $role }}</td>
                                     @if($authUser->role === 'admin')
-                                        <td class="d-flex gap-1">
-                                            <a class="btn btn-warning btn-sm" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                            <form action="{{ route('usuario.destroy', $user) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
-                                            </form>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a class="btn btn-warning btn-sm" href="{{ route('usuario.edit', $user) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                                <form action="{{ route('usuario.destroy', $user) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     @else
                                         <td>

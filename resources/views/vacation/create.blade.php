@@ -34,14 +34,22 @@
                         </select>
                     </div>
 
-                    <div class="form-group mt-3">
-                        <label for="start_date">Data de início</label>
-                        <input type="date" name="start_date" id="start_date" class="form-control" required>
+                    <div id="vacation-fields">
+                        <div class="vacation-entry border p-3 mt-3">
+                            <div class="form-group">
+                                <label for="start_date">Data de início</label>
+                                <input type="date" name="start_date[]" id="start_date" class="form-control" required>
+                            </div>
+        
+                            <div class="form-group mt-3">
+                                <label for="end_date">Data de término</label>
+                                <input type="date" name="end_date[]" id="end_date" class="form-control" required>
+                            </div>
+                        </div>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="end_date">Data de término</label>
-                        <input type="date" name="end_date" id="end_date" class="form-control" required>
+                        <button class="btn btn-secondary" type="button" onclick="addVacationEntry()">Adicionar outro período</button>
                     </div>
 
                     <div class="form-group mt-3">
@@ -55,8 +63,10 @@
                         <form method="POST" action="{{ route('vacation.store') }}" class="mt-2">
                             @csrf
                             <input type="hidden" name="user_id" value="{{ old('user_id') }}">
-                            <input type="hidden" name="start_date" value="{{ old('start_date') }}">
-                            <input type="hidden" name="end_date" value="{{ old('end_date') }}">
+                            @foreach (old('start_date', []) as $i => $start)
+                                <input type="hidden" name="start_date[]" value="{{ $start }}">
+                                <input type="hidden" name="end_date[]" value="{{ old('end_date')[$i] ?? '' }}">                                
+                            @endforeach
                             <input type="hidden" name="confirm" value="1">
                             <button type="submit" class="btn btn-danger">Confirmar mesmo assim</button>
                         </form>
@@ -69,6 +79,14 @@
 
 @push('scripts')
     <script>
+        function addVacationEntry() {
+            const container = document.getElementById('vacation-fields');
+            const entry = document.querySelector('.vacation-entry');
+            const clone = entry.cloneNode(true);
 
+            clone.querySelectorAll('input').forEach(input => input.value = '');
+
+            container.appendChild(clone);
+        }
     </script>
 @endpush

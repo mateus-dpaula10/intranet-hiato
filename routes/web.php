@@ -45,7 +45,7 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ferias/edit/{vacation}', [VacationController::class, 'edit'])->name('vacation.edit');    
         Route::patch('/ferias/edit/{vacation}', [VacationController::class, 'update'])->name('vacation.update');    
         Route::delete('/ferias/delete/{vacation}', [VacationController::class, 'destroy'])->name('vacation.destroy');    
-        Route::patch('/ferias/{vacation}/markAsRead', [VacationController::class, 'markAsRead'])->name('vacations.markAsRead');    
+        Route::patch('/ferias/{vacation}/markAsRead/{periodIndex}', [VacationController::class, 'markAsRead'])->name('vacations.markAsRead');
 
         Route::get('/feedbacks/create', [FeedbackController::class, 'create'])->name('feedback.create');    
         Route::post('/feedbacks/store', [FeedbackController::class, 'store'])->name('feedback.store');    

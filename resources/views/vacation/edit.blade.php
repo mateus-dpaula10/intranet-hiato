@@ -30,20 +30,31 @@
                         <label for="user_id">Nome</label>
                         <select id="user_id" class="form-select" disabled>
                             @foreach ($users as $user)
-                                <option value="{{ $user->id }}" {{ old('user_id', $vacation->user_id) == $user->id ? 'selected' : '' }}>{{ $user->name }}</option>
+                                <option value="{{ $vacation->user->id }}" selected>{{ $vacation->user->name }}</option>
                             @endforeach
                         </select>
-                        <input type="hidden" name="user_id" value="{{ $vacation->user_id }}">
+                        <input type="hidden" name="user_id" value="{{ $vacation->user->id }}">
+                    </div>
+
+                    <div id="periods-container">
+                        @foreach ($vacation->periods ?? [] as $i => $period)
+                            <div class="period-entry border p-3 mt-3">
+                                <div class="form-group">
+                                    <label for="start_date">Data de início</label>
+                                    <input type="date" name="start_date[]" class="form-control" value="{{ old("start_date.$i", $period['start_date']) }}" required>
+                                </div>
+            
+                                <div class="form-group mt-3">
+                                    <label for="end_date">Data de término</label>
+                                    <input type="date" name="end_date[]" class="form-control" value="{{ old("end_date.$i", $period['end_date']) }}" required>
+                                </div>
+                                <button type="button" class="btn btn-danger btn-sm mt-2 remove-period">Remover</button>
+                            </div>
+                        @endforeach
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="start_date">Data de início</label>
-                        <input type="date" name="start_date" id="start_date" class="form-control" value="{{ old('start_date', $vacation->start_date) }}">
-                    </div>
-
-                    <div class="form-group mt-3">
-                        <label for="end_date">Data de término</label>
-                        <input type="date" name="end_date" id="end_date" class="form-control" value="{{ old('end_date', $vacation->end_date) }}">
+                        <button class="btn btn-secondary" type="button" id="add-period">Adicionar período</button>
                     </div>
 
                     <div class="form-group mt-3">
@@ -57,9 +68,13 @@
                         <form method="POST" action="{{ route('vacation.update', $vacation) }}" class="mt-2">
                             @csrf
                             @method('PATCH')
-                            <input type="hidden" name="user_id" value="{{ old('user_id', $vacation->user_id) }}">
-                            <input type="hidden" name="start_date" value="{{ old('start_date', $vacation->start_date) }}">
-                            <input type="hidden" name="end_date" value="{{ old('end_date', $vacation->end_date) }}">
+                            <input type="hidden" name="user_id" value="{{ $vacation->user->id }}">
+                            @foreach (old('start_date', array_column($vacation->periods ?? [], 'start_date')) as $i => $start)
+                                <input type="hidden" name="start_date[]" value="{{ $start }}">                                
+                            @endforeach
+                            @foreach (old('end_date', array_column($vacation->periods ?? [], 'end_date')) as $i => $end)
+                                <input type="hidden" name="end_date[]" value="{{ $end }}">                                
+                            @endforeach
                             <input type="hidden" name="confirm" value="1">
                             <button type="submit" class="btn btn-danger">Confirmar mesmo assim</button>
                         </form>
@@ -73,79 +88,31 @@
 @push('scripts')
     <script>
         document.addEventListener('DOMContentLoaded', () => {
-            const passwordInput = document.getElementById('password');
-            const strengthBar = document.getElementById('strength-bar');
-            const generateBtn = document.getElementById('generate-password');
-            const generatedText = document.getElementById('generated-password');
-            const copyBtn = document.getElementById('copy-password');
+            const container = document.getElementById('periods-container');
 
-            const calculateStrength = (password) => {
-                let score = 0;
+            document.getElementById('add-period').addEventListener('click', () => {
+                const template = document.createElement('div');
+                template.classList.add('period-entry', 'border', 'p-3', 'mt-3');
+                template.innerHTML = `
+                    <div class="form-group">
+                        <label>Data de início</label>
+                        <input type="date" name="start_date[]" class="form-control" required>
+                    </div>
 
-                if (password.length >= 8) score += 20;
+                    <div class="form-group mt-3">
+                        <label>Data de término</label>
+                        <input type="date" name="end_date[]" class="form-control" required>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-period">Remover</button>
+                `;
+                container.appendChild(template);
+            });
 
-                if (/[A-Z]/.test(password)) score += 20;
-
-                if (/[a-z]/.test(password)) score += 20;
-                
-                if (/[0-9]/.test(password)) score += 20;
-                
-                if (/[@$!%*?&]/.test(password)) score += 20;
-
-                return score;
-            }
-
-            const updateStrengthBar = (password) => {
-                const strength = calculateStrength(password);
-                strengthBar.style.width = `${strength}%`;
-
-                strengthBar.classList.remove('bg-danger', 'bg-warning', 'bg-success');
-
-                if (strength < 100) {
-                    if (strength < 40) {
-                        strengthBar.classList.add('bg-danger');
-                    } else {
-                        strengthBar.classList.add('bg-warning');
-                    }
-                } else {
-                    strengthBar.classList.add('bg-success');
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-period')) {
+                    e.target.closest('.period-entry').remove();
                 }
-            };
-
-            passwordInput.addEventListener('input', function() {
-                updateStrengthBar(passwordInput.value);
             });
-
-            const gerarSenha = (tamanho = 12) => {
-                const minusculas = 'abcdefghijklmnopqrstuvwxyz';
-                const maiusculas = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-                const numeros = '0123456789';
-                const especiais = '@$!%*?&';
-                
-                let senha = minusculas[Math.floor(Math.random() * minusculas.length)]
-                        + maiusculas[Math.floor(Math.random() * maiusculas.length)]
-                        + numeros[Math.floor(Math.random() * numeros.length)]
-                        + especiais[Math.floor(Math.random() * especiais.length)];
-
-                const todos = minusculas + maiusculas + numeros + especiais;
-                for (let i = senha.length; i < tamanho; i++) {
-                    senha += todos[Math.floor(Math.random() * todos.length)];
-                }
-
-                return senha.split('').sort(() => 0.5 - Math.random()).join('');
-            }
-
-            generateBtn.addEventListener('click', () => {
-                const novaSenha = gerarSenha();
-                generatedText.value = novaSenha;
-            });
-
-            copyBtn.addEventListener('click', () => {
-                generatedText.select();
-                generatedText.setSelectionRange(0, 99999); 
-                document.execCommand('copy');
-                alert('Senha copiada para a área de transferência!');
-            });
-        })        
+        });
     </script>
 @endpush

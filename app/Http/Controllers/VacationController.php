@@ -26,7 +26,14 @@ class VacationController extends Controller
             });
         }   
 
-        $vacations = $query->orderBy('start_date', 'desc')->get();
+        $vacations = $query->get();
+
+        $vacations = $vacations->sortByDesc(function ($vacation) {
+            if (!empty($vacation->periods)) {
+                return $vacation->periods[0]['start_date'];
+            }
+            return null;
+        });
 
         return view ('vacation.index', compact('vacations', 'user'));
     }
@@ -40,62 +47,102 @@ class VacationController extends Controller
 
     public function store(Request $request)
     {
-        $request->validate([
-            'user_id'    => 'required|exists:users,id',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date'
+        $validated = $request->validate([
+            'user_id'               => 'required|exists:users,id',
+            'start_date'            => 'required|array|min:1',
+            'start_date.*'          => 'required|date',
+            'end_date'              => 'required|array|min:1',
+            'end_date.*'            => 'required|date'
         ], [
-            'start_date.required' => 'Data de início é obrigatória.',
-            'end_date.required'   => 'Data de término é obrigatória.'
+            'start_date.*.required' => 'Data de início é obrigatória.',
+            'end_date.*.required'   => 'Data de término é obrigatória.'
         ]);
 
-        $start = Carbon::parse($request->start_date);
-        $end = Carbon::parse($request->end_date);
-        $daysRequested = $start->diffInDays($end) + 1;
+        $user = User::findOrFail($validated['user_id']);
+        $newPeriods = [];
 
-        $vacationsLastYear = Vacation::where('user_id', $request->user_id)
-            ->where('end_date', '>=', $start->copy()->subDays(365))
-            ->get();
+        foreach ($validated['start_date'] as $i => $start) {
+            $end = $validated['end_date'][$i] ?? null;
+            if (!$end) continue;
 
-        $daysUsed = $vacationsLastYear->sum(function ($v) {
-            return Carbon::parse($v->start_date)->diffInDays(Carbon::parse($v->end_date)) + 1;
-        });
+            $startCarbon = Carbon::parse($start);
+            $endCarbon = Carbon::parse($end);
+
+            if ($endCarbon->lt($startCarbon)) {
+                return back()->withInput()->with('warning', 
+                    "A data final ({$endCarbon->format('d/m/Y')}) não pode ser menor que a inicial ({$startCarbon->format('d/m/Y')})."
+                );
+            }
+
+            $newPeriods[] = [
+                'start_date' => $startCarbon->toDateString(),
+                'end_date'   => $endCarbon->toDateString(),
+                'days'       => $startCarbon->diffInDays($endCarbon) + 1
+            ];
+        }
+
+        $daysRequested = collect($newPeriods)->sum('days');
+
+        $vacation = Vacation::firstOrCreate(
+            ['user_id' => $user->id],
+            ['periods' => []]
+        );
+
+        $existingPeriods = $vacation->periods ?? [];
+        $daysUsed = collect($existingPeriods)->sum(fn ($p) =>
+            Carbon::parse($p['start_date'])->diffInDays(Carbon::parse($p['end_date'])) + 1
+        );
 
         $daysRemaining = 30 - $daysUsed;
 
-        if ($daysRequested > $daysRemaining && $daysUsed > 0 && !$request->has('confirm')) {
-            return back()->withInput()->with('warning', "O período selecionado ultrapassa o limite máximo de 30 dias de férias.");
-        }
-
         if ($daysRequested > $daysRemaining && !$request->has('confirm')) {
-            return back()->withInput()->with('warning', "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses, restam apenas {$daysRemaining}. Deseja confirmar mesmo assim?");
+            return back()->withInput()->with('warning', 
+                "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses, restam apenas {$daysRemaining}. Deseja confirmar mesmo assim?"
+            );
         }
 
-        $conflicts = Vacation::with('user')
-            ->where('user_id', '!=', $request->user_id)
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('start_date', [$request->start_date, $request->end_date])
-                    ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
-                    ->orWhere(function ($q) use ($request) {
-                        $q->where('start_date', '<=', $request->start_date)
-                            ->where('end_date', '>=', $request->end_date);
-                    });
-            })
-            ->get();
+        foreach ($newPeriods as $p) {
+            $conflicts = Vacation::with('user')
+                ->where('user_id', '!=', $user->id)
+                ->get()
+                ->filter(function ($v) use ($p) {
+                    foreach ($v->periods ?? [] as $period) {
+                        $start = Carbon::parse($period['start_date']);
+                        $end   = Carbon::parse($period['end_date']);
 
-        if ($conflicts->isNotEmpty() && !$request->has('confirm')) {
-            $names = $conflicts->map(function ($v) {
-                $start = Carbon::parse($v->start_date)->format('d/m/Y');
-                $end = Carbon::parse($v->end_date)->format('d/m/Y');
-                return $v->user->name . " ({$start} até {$end})";
-            })->join(', ');
+                        if (
+                            (Carbon::parse($p['start_date'])->between($start, $end)) ||
+                            (Carbon::parse($p['end_date'])->between($start, $end)) ||
+                            (Carbon::parse($p['start_date'])->lte($start) && Carbon::parse($p['end_date'])->gte($end))
+                        ) {
+                            return true;
+                        }
+                    }
+                    return false;
+                });
+        
+            if ($conflicts->isNotEmpty() && !$request->has('confirm')) {
+                $names = $conflicts->map(function ($v) {
+                    $periodsStr = collect($v->periods)->map(fn ($p) =>
+                        Carbon::parse($p['start_date'])->format('d/m/Y') . ' até ' .
+                        Carbon::parse($p['end_date'])->format('d/m/Y')
+                    )->join(', ');
+                    return $v->user->name . " ({$periodsStr})";
+                })->join(', ');
 
-            return back()->withInput()->with('warning', "Já existe(m) colaborador(es) de férias neste período: ${names}. Deseja confirmar mesmo assim?");
+                return back()->withInput()->with('warning',
+                    "Já existe(m) colaborador(es) de férias em algum dos períodos informados: {$names}. Deseja confirmar mesmo assim?"
+                );
+            }
         }
 
-        Vacation::create($request->only('user_id', 'start_date', 'end_date'));
+        $vacation->periods = array_merge($existingPeriods, $newPeriods);
+        $vacation->save();
 
-        return redirect()->route('vacation.index')->with('success', 'Período de férias cadastrado com sucesso.');
+        return redirect()->route('vacation.index')
+            ->with('success', 
+                "Período de férias do colaborador '{$user->name}' cadastrado(s) com sucesso."
+            );
     }
 
     public function edit(Vacation $vacation)
@@ -107,58 +154,107 @@ class VacationController extends Controller
 
     public function update(Request $request, Vacation $vacation)
     {
-        $request->validate([
-            'user_id'    => 'required|exists:users,id',
-            'start_date' => 'required|date',
-            'end_date'   => 'required|date|after_or_equal:start_date'
+        $validated = $request->validate([
+            'user_id'      => 'required|exists:users,id',
+            'start_date'   => 'required|array|min:1',
+            'start_date.*' => 'required|date',
+            'end_date'     => 'required|array|min:1',
+            'end_date.*'   => 'required|date'
         ], [
             'start_date.required' => 'Data de início é obrigatória.',
             'end_date.required'   => 'Data de término é obrigatória.'
         ]);
 
-        $start = Carbon::parse($request->start_date);
-        $end = Carbon::parse($request->end_date);
-        $daysRequested = $start->diffInDays($end) + 1;
+        $user = User::findOrFail($validated['user_id']);
+        $newPeriods = [];
 
-        $vacationsLastYear = Vacation::where('user_id', $request->user_id)
+        foreach ($validated['start_date'] as $i => $start) {
+            $end = $validated['end_date'][$i] ?? null;
+            if (!$end) continue;
+
+            $startCarbon = Carbon::parse($start);
+            $endCarbon = Carbon::parse($end);
+
+            if ($endCarbon->lt($startCarbon)) {
+                return back()->withInput()->with('warning', 
+                    "A data final ({$endCarbon->format('d/m/Y')}) não pode ser menor que a inicial ({$startCarbon->format('d/m/Y')})."
+                );
+            }
+
+            $newPeriods[] = [
+                'start_date' => $startCarbon->toDateString(),
+                'end_date'   => $endCarbon->toDateString(),
+                'days'       => $startCarbon->diffInDays($endCarbon) + 1
+            ];
+        }
+
+        $daysRequested = collect($newPeriods)->sum('days');
+
+        $otherVacations = Vacation::where('user_id', $user->id)
             ->where('id', '!=', $vacation->id)
-            ->where('end_date', '>=', $start->copy()->subDays(365))
             ->get();
 
-        $daysUsed = $vacationsLastYear->sum(function ($v) {
-            return Carbon::parse($v->start_date)->diffInDays(Carbon::parse($v->end_date)) + 1;
+        $daysUsed = $otherVacations->sum(function ($v) {
+            return collect($v->periods ?? [])->sum(function ($p) {
+                return Carbon::parse($p['start_date'])->diffInDays(Carbon::parse($p['end_date'])) + 1;
+            });
         });
 
-        $totalDaysAfterUpdate = $daysUsed + $daysRequested;
         $daysRemaining = 30 - $daysUsed;
 
-        if ($daysUsed === 0 && $daysRequested > 30 && !$request->has('confirm')) {
-            return back()->withInput()->with('warning', "O período selecionado ultrapassa o limite máximo de 30 dias de férias.");
+        if ($daysRequested > $daysRemaining && !$request->has('confirm')) {
+            return back()->withInput()->with('warning', 
+                "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses, restam apenas {$daysRemaining}. Deseja confirmar mesmo assim?"
+            );
         }
 
-        if ($totalDaysAfterUpdate > 30 && !$request->has('confirm')) {
-            return back()->withInput()->with('warning', "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses. Restam apenas {$daysRemaining} dias.");
-        }
+        foreach ($newPeriods as $p) {
+            $conflicts = Vacation::with('user')
+                ->where('id', '!=', $vacation->id)
+                ->where('user_id', '!=', $user->id)
+                ->get()
+                ->map(function ($v) use ($p) {
+                    $conflictingPeriods = collect($v->periods ?? [])->filter(function ($period) use ($p) {
+                        $start = Carbon::parse($period['start_date']);
+                        $end   = Carbon::parse($period['end_date']);
 
-        $conflict = Vacation::where('id', '!=', $vacation->id) 
-            ->where('user_id', '!=', $request->user_id)
-            ->where(function ($query) use ($request) {
-                $query->whereBetween('start_date', [$request->start_date, $request->end_date])
-                    ->orWhereBetween('end_date', [$request->start_date, $request->end_date])
-                    ->orWhere(function ($q) use ($request) {
-                        $q->where('start_date', '<=', $request->start_date)
-                            ->where('end_date', '>=', $request->end_date);
+                        return (
+                            Carbon::parse($p['start_date'])->between($start, $end) ||
+                            Carbon::parse($p['end_date'])->between($start, $end) ||
+                            (Carbon::parse($p['start_date'])->lte($start) && Carbon::parse($p['end_date'])->gte($end))
+                        );
                     });
-            })
-            ->exists();
+                    
+                    return $conflictingPeriods->isNotEmpty()
+                        ? ['user' => $v->user, 'periods' => $conflictingPeriods->values()->all()]
+                        : null;
+                })
+                ->filter();
+        
+            if ($conflicts->isNotEmpty() && !$request->has('confirm')) {
+                $names = $conflicts->map(function ($c) {
+                    $periodsStr = collect($c['periods'])->map(fn($p) =>
+                        Carbon::parse($p['start_date'])->format('d/m/Y') . ' até ' .
+                        Carbon::parse($p['end_date'])->format('d/m/Y')
+                    )->join(', ');
 
-        if ($conflict) {
-            return back()->with('warning', 'Já existe outro colaborador de férias neste período.')->withInput();
+                    return $c['user']->name . " ({$periodsStr})";
+                })->join(', ');
+
+                return back()->withInput()->with('warning',
+                    "Já existe(m) colaborador(es) de férias em conflito com este período: {$names}. Deseja confirmar mesmo assim?"
+                );
+            }
         }
 
-        $vacation->update($request->only('user_id', 'start_date', 'end_date'));
+        $vacation->periods = $newPeriods;
+        $vacation->user_id = $user->id;
+        $vacation->save();
 
-        return redirect()->route('vacation.index')->with('success', 'Período de férias atualizado com sucesso.');
+        return redirect()->route('vacation.index')
+            ->with('success', 
+                "Período(s) de férias do colaborador '{$user->name}' atualizado(s) com sucesso."
+            );
     }
 
     public function destroy(Vacation $vacation)
@@ -168,10 +264,17 @@ class VacationController extends Controller
         return redirect()->back()->with('success', 'Período de férias do colaborador "' . $vacation->user->name . '" removido com sucesso.');
     }
 
-    public function markAsRead(Vacation $vacation)
+    public function markAsRead(Vacation $vacation, $periodIndex)
     {
-        $vacation->update(['is_read' => true]);
+        $periods = $vacation->periods;
 
-        return redirect()->back()->with('success', 'Aviso de férias do colaborador "' . $vacation->user->name . '" marcado como lido.');
+        if (isset($periods[$periodIndex])) {
+            $periods[$periodIndex]['is_read'] = true;
+            $vacation->periods = $periods;
+            $vacation->save();
+        }
+
+        return redirect()->route('dashboard.index')
+            ->with('success', 'Aviso de férias do colaborador "' . $vacation->user->name . '" marcado como lido.');
     }
 }

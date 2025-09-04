@@ -80,13 +80,15 @@
                                         @endif
                                     @endforeach      
                                     @if ($authUser->role === 'admin')
-                                        <td class="d-flex gap-1">
-                                            <a class="btn btn-warning btn-sm" href="{{ route('feedback.edit', $feedback) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                            <form action="{{ route('feedback.destroy', $feedback) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
-                                            </form>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a class="btn btn-warning btn-sm" href="{{ route('feedback.edit', $feedback) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                                <form action="{{ route('feedback.destroy', $feedback) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     @endif
                                 </tr>

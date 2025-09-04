@@ -23,18 +23,37 @@ class DashboardController extends Controller
             return redirect()->route('dashboard.agradecimento');
         }
 
+        $now = Carbon::now();
+
         $vacations = Vacation::with('user')
-            ->whereBetween('start_date', [now(), now()->addDays(30)])
-            ->where('is_read', false)
             ->when($authUser->role !== 'admin', function ($query) use ($authUser) {
                 $query->where('user_id', $authUser->id);
             })
-            ->orderBy('start_date')
-            ->get();
+            ->get()
+            ->flatMap(function ($vacation) use ($now) {
+                return collect($vacation->periods ?? [])->map(function ($period, $index) use ($vacation, $now) {
+                    $start = Carbon::parse($period['start_date']);
+                    $end = Carbon::parse($period['end_date']);
+                    $isRead = $period['is_read'] ?? false;
+
+                    if ($start->gte($now) && !$isRead) {
+                        return [
+                            'vacation_id'  => $vacation->id,
+                            'period_index' => $index,
+                            'user'         => $vacation->user,
+                            'start_date'   => $start,
+                            'end_date'     => $end,
+                            'is_read'      => $isRead
+                        ];
+                    }
+                    return null;
+                })->filter();
+            })
+            ->sortBy('start_date')
+            ->values();
 
         $users = User::all();
         $feedbacks = collect();
-        $now = Carbon::now();
 
         foreach ($users as $user) {
             if (!$user->admission_date) continue;

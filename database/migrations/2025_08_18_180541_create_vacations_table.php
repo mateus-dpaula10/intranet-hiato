@@ -13,10 +13,8 @@ return new class extends Migration
     {
         Schema::create('vacations', function (Blueprint $table) {
             $table->id();
-            $table->date('start_date');
-            $table->date('end_date');
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
-            $table->boolean('is_read')->default(false);
+            $table->json('periods');
             $table->timestamps();
         });
     }

@@ -48,8 +48,7 @@
                         <thead>
                             <tr>
                                 <th>Colaborador</th>
-                                <th>Início</th>
-                                <th>Fim</th>
+                                <th>Períodos de férias</th>
                                 @if ($user->role === 'admin')
                                     <th>Ações</th>
                                 @endif
@@ -59,16 +58,27 @@
                             @foreach($vacations as $vacation)
                                 <tr>
                                     <td>{{ $vacation->user->name }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($vacation->start_date)->format('d/m/Y') }}</td>
-                                    <td>{{ \Carbon\Carbon::parse($vacation->end_date)->format('d/m/Y') }}</td>
+                                    <td>
+                                        <ul class="mb-0">
+                                            @foreach($vacation->periods as $period)
+                                                <li>
+                                                    {{ \Carbon\Carbon::parse($period['start_date'])->format('d/m/Y') }}
+                                                    até
+                                                    {{ \Carbon\Carbon::parse($period['end_date'])->format('d/m/Y') }}
+                                                </li>
+                                            @endforeach
+                                        </ul>
+                                    </td>
                                     @if ($user->role === 'admin')
-                                        <td class="d-flex gap-1">
-                                            <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $vacation) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                            <form action="{{ route('vacation.destroy', $vacation) }}" method="POST">
-                                                @csrf
-                                                @method('DELETE')
-                                                <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
-                                            </form>
+                                        <td>
+                                            <div class="d-flex gap-1">
+                                                <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $vacation) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
+                                                <form action="{{ route('vacation.destroy', $vacation) }}" method="POST">
+                                                    @csrf
+                                                    @method('DELETE')
+                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                                </form>
+                                            </div>
                                         </td>
                                     @endif
                                 </tr>
