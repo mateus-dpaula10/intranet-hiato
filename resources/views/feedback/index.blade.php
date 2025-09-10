@@ -67,6 +67,7 @@
                                     @foreach ($feedback->types as $index => $type)
                                         @php
                                             $typeFeedback = match($type) {
+                                                'ponctual'     => 'Pontual',
                                                 'mounth_one'   => '1 mês',
                                                 'mounth_three' => '3 meses',
                                                 'mounth_six'   => '6 meses',

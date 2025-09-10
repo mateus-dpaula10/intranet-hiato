@@ -27,6 +27,31 @@ class FeedbackController extends Controller
         
         $feedbacks = $query->get();
 
+        if ($authUser->role !== 'admin') {
+            $feedbacks->transform(function ($feedback) {
+                $filteredDates = [];
+                $filteredTypes = [];
+                $filteredDescriptions = [];
+                $filteredVisibles = [];
+
+                foreach ($feedback->completion_dates as $i => $date) {
+                    if ($feedback->visibles[$i] ?? false) {
+                        $filteredDates[]        = $date;
+                        $filteredTypes[]        = $feedback->types[$i] ?? null;
+                        $filteredDescriptions[] = $feedback->descriptions[$i] ?? null;
+                        $filteredVisibles[]     = true;
+                    }
+                }
+
+                $feedback->completion_dates = $filteredDates;
+                $feedback->types            = $filteredTypes;
+                $feedback->descriptions     = $filteredDescriptions;
+                $feedback->visibles         = $filteredVisibles;
+
+                return $feedback;
+            });
+        }
+
         return view ('feedback.index', compact('authUser', 'feedbacks'));
     }
 
@@ -44,7 +69,8 @@ class FeedbackController extends Controller
             'type'              => 'required|array|min:1',
             'type.*'            => 'required|string',
             'description'       => 'required|array|min:1',
-            'description.*'     => 'required|string'
+            'description.*'     => 'required|string',
+            'visible'           => 'array'
         ]);
 
         $userName = User::find($validated['user_id'])->name;
@@ -53,7 +79,11 @@ class FeedbackController extends Controller
             'user_id'          => $validated['user_id'],
             'completion_dates' => $validated['completion_date'],
             'types'            => $validated['type'],
-            'descriptions'     => $validated['description']
+            'descriptions'     => $validated['description'],
+            'visibles'         => array_map(fn($i) =>
+                isset($validated['visible'][$i]) ? true : false,
+                array_keys($validated['completion_date'])
+            )
         ]);
 
         return redirect()->route('feedback.index')->with('success', "Feedback(s) para o colaborador '{$userName}' cadastrado(s) com sucesso.");
@@ -73,14 +103,21 @@ class FeedbackController extends Controller
             'type'              => 'required|array|min:1',
             'type.*'            => 'required|string',
             'description'       => 'required|array|min:1',
-            'description.*'     => 'required|string'
+            'description.*'     => 'required|string',
+            'visible'           => 'array'
         ]);
+
+        $visibles = array_map(fn($i) =>
+            isset($validated['visible'][$i]) ? true : false,
+            array_keys($validated['completion_date'])
+        );
 
         $feedback->update([
             'user_id'          => $validated['user_id'],
             'completion_dates' => $validated['completion_date'],
             'types'            => $validated['type'],
-            'descriptions'     => $validated['description']
+            'descriptions'     => $validated['description'],
+            'visibles'         => $visibles
         ]);
 
         $feedback->load('user');

@@ -47,12 +47,20 @@
                                 <div class="form-group mt-3">
                                     <label class="form-label">Tipo</label>
                                     <select name="type[]" class="form-control" required>
+                                        <option value="ponctual" {{ ($feedback->types[$index] ?? '' ) === 'ponctual' ? 'selected' : '' }}>Pontual</option>
                                         <option value="mounth_one" {{ ($feedback->types[$index] ?? '' ) === 'mounth_one' ? 'selected' : '' }}>1 mês</option>
                                         <option value="mounth_three" {{ ($feedback->types[$index] ?? '' ) === 'mounth_three' ? 'selected' : '' }}>3 meses</option>
                                         <option value="mounth_six" {{ ($feedback->types[$index] ?? '' ) === 'mounth_six' ? 'selected' : '' }}>6 meses</option>
                                         <option value="year_one" {{ ($feedback->types[$index] ?? '' ) === 'year_one' ? 'selected' : '' }}>1 ano</option>
                                         <option value="yearly" {{ ($feedback->types[$index] ?? '' ) === 'yearly' ? 'selected' : '' }}>Anual</option>
                                     </select>
+                                </div>
+
+                                <div class="form-check mt-3">
+                                    <input class="form-check-input" type="checkbox" name="visible[{{ $index }}]" value="1" {{ ($feedback->visibles[$index] ?? false) ? 'checked' : '' }}>
+                                    <label class="form-check-label">
+                                        Colaborador pode visualizar?
+                                    </label>
                                 </div>
             
                                 <div class="form-group mt-3">

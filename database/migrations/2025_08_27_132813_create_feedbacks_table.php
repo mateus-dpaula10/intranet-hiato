@@ -16,6 +16,7 @@ return new class extends Migration
             $table->json('completion_dates');
             $table->json('types');
             $table->json('descriptions');
+            $table->json('visibles')->nullable();
             $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->timestamps();
         });

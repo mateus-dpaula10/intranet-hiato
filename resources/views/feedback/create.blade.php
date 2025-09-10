@@ -45,12 +45,20 @@
                                 <label class="form-label">Tipo</label>
                                 <select name="type[]" class="form-control" required>
                                     <option value="">Selecione um tipo de feedback</option>
+                                    <option value="ponctual">Pontual</option>
                                     <option value="mounth_one">1 mês</option>
                                     <option value="mounth_three">3 meses</option>
                                     <option value="mounth_six">6 meses</option>
                                     <option value="year_one">1 ano</option>
                                     <option value="yearly">Anual</option>
                                 </select>
+                            </div>
+
+                            <div class="form-check mt-3">
+                                <input class="form-check-input" type="checkbox" name="visible[{{ $loop->index ?? 0 }}]" value="1">
+                                <label class="form-check-label">
+                                    Colaborador pode visualizar?
+                                </label>
                             </div>
         
                             <div class="form-group mt-3">

@@ -12,13 +12,15 @@ class Feedback extends Model
         'user_id',
         'completion_dates',
         'types',
-        'descriptions'
+        'descriptions',
+        'visibles'
     ];
 
     protected $casts = [
         'completion_dates' => 'array',
         'types'            => 'array',
-        'descriptions'     => 'array'
+        'descriptions'     => 'array',
+        'visibles'         => 'array'
     ];
 
     public function user()
