@@ -21,6 +21,14 @@ return new class extends Migration
             $table->date('admission_date')->nullable();
             $table->date('birth_date')->nullable();
             $table->string('position')->nullable();
+            $table->string('cep');
+            $table->string('address');
+            $table->string('number');
+            $table->string('complement')->nullable();
+            $table->string('phone');
+            $table->string('emergency_phone')->nullable();
+            $table->boolean('convenio')->default(false);
+            $table->string('convenio_qual')->nullable();
             $table->rememberToken();
             $table->timestamps();
         });

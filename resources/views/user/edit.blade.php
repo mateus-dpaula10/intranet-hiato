@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Criar usuário')
+@section('title', 'Editar usuário')
 
 @section('content')
     <div class="container-fluid">
@@ -73,6 +73,50 @@
                             <label for="position" class="form-label">Cargo</label>
                             <input type="text" name="position" id="position" class="form-control" value="{{ old('position', $user->position) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
                         </div>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="cep" class="form-label">CEP</label>
+                        <input type="text" name="cep" id="cep" class="form-control" value="{{ old('cep', $user->cep) }}" required>
+                    </div>
+                    <small>Preencha o CEP que automaticamente o endereço será preenchido</small>
+
+                    <div class="form-group mt-3">
+                        <label for="address" class="form-label">Endereço</label>
+                        <input type="text" name="address" id="address" class="form-control" value="{{ old('address', $user->address) }}" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="number" class="form-label">Número</label>
+                        <input type="number" name="number" id="number" class="form-control" value="{{ old('number', $user->number) }}" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="complement" class="form-label">Complemento</label>
+                        <input type="text" name="complement" id="complement" class="form-control" value="{{ old('complement', $user->complement) }}">
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="phone" class="form-label">Telefone</label>
+                        <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone', $user->phone) }}" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="emergency_phone" class="form-label">Telefone de emergência</label>
+                        <input type="text" name="emergency_phone" id="emergency_phone" class="form-control" value="{{ old('emergency_phone', $user->emergency_phone) }}">
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="convenio" class="form-label">Convênio</label>
+                        <select name="convenio" id="convenio" class="form-select" required>
+                            <option value="sim" {{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'sim' ? 'selected' : '' }}>Sim</option>
+                            <option value="nao" {{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'nao' ? 'selected' : '' }}>Não</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-3" id="convenio_qual_container" style="{{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'sim' ? '' : 'display: none' }}">
+                        <label for="convenio_qual" class="form-label">Qual?</label>
+                        <input type="text" name="convenio_qual" id="convenio_qual" class="form-control" value="{{ old('convenio_qual', $user->convenio_qual) }}" {{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'sim' ? 'required' : '' }}>
                     </div>
 
                     <div class="form-group mt-3">
@@ -208,6 +252,76 @@
             });
 
             selectRole.dispatchEvent(new Event('change'));
+
+            const inputCep = document.getElementById('cep');
+            const inputAddress = document.getElementById('address');
+
+            inputCep.addEventListener('input', function () {
+                let value = inputCep.value.replace(/\D/g, '');
+                if (value.length > 8) value = value.substring(0, 8);
+                if (value.length > 5) value = value.replace(/(\d{5})(\d)/, "$1-$2");
+                inputCep.value = value;
+            });
+
+            inputCep.addEventListener('blur', function () {
+                const cep = inputCep.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.erro) {
+                                const endereco = `${data.logradouro}, ${data.bairro}, ${data.localidade} - ${data.uf}`;
+                                inputAddress.value = endereco;
+                            } else {
+                                alert('CEP não encontrado!');
+                                inputAddress.value = '';
+                            }
+                        })
+                        .catch(() => {
+                            alert('Erro ao buscar o CEP!');
+                        });
+                }
+            });
+
+            const convenioSelect = document.getElementById('convenio');
+            const convenioQualContainer = document.getElementById('convenio_qual_container');
+
+            convenioSelect.addEventListener('change', function () {
+                if (convenioSelect.value === 'sim') {
+                    convenioQualContainer.style.display = 'block';
+                    document.getElementById('convenio_qual').setAttribute('required', 'required');
+                } else {
+                    convenioQualContainer.style.display = 'none';
+                    document.getElementById('convenio_qual').value = '';
+                    document.getElementById('convenio_qual').removeAttribute('required');
+                }
+            });
+
+            function maskPhone(event) {
+                let input = event.target;
+                let value = input.value.replace(/\D/g, '');
+
+                if (!value) {
+                    input.value = '';
+                    return;
+                }
+
+                if (value.length > 11) value = value.substring(0, 11);
+
+                if (value.length > 10) {
+                    value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+                } else if (value.length > 5) {
+                    value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+                } else if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d{0,5})/, "($1) $2");
+                } else {
+                    value = value.replace(/^(\d*)/, "($1");
+                }
+                input.value = value;
+            }
+
+            document.getElementById('phone').addEventListener('input', maskPhone);
+            document.getElementById('emergency_phone').addEventListener('input', maskPhone);
         })        
     </script>
 @endpush

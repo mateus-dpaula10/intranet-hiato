@@ -24,7 +24,15 @@ class User extends Authenticatable
         'role',
         'admission_date',
         'birth_date',
-        'position'
+        'position',
+        'cep',
+        'address',
+        'number',
+        'complement',
+        'phone',
+        'emergency_phone',
+        'convenio',
+        'convenio_qual'
     ];
 
     /**

@@ -65,6 +65,8 @@
                                 <label class="form-label">Descrição</label>
                                 <textarea name="description[]" class="form-control" rows="10" required></textarea>
                             </div>
+
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-entry-btn" onclick="this.closest('.feedback-entry').remove()">Remover</button>
                         </div>
                     </div>
 
@@ -88,7 +90,62 @@
             const entry = container.querySelector('.feedback-entry');
             const clone = entry.cloneNode(true);
 
+            clone.querySelectorAll('input, textarea, select').forEach(el => {
+                if (el.type === 'checkbox') {
+                    el.checked = false;
+                } else if (el.tagName.toLowerCase() === 'select') {
+                    el.selectedIndex = 0;
+                } else {
+                    el.value = '';
+                }
+            });
+
             container.appendChild(clone);
+            
+            updateFeedbackIndices();
+            updateRemoveButtons();
         }
+
+        function updateFeedbackIndices() {
+            const container = document.getElementById('feedback-fields');
+            container.querySelectorAll('.feedback-entry').forEach((entry, index) => {
+                entry.querySelectorAll('input, select, textarea').forEach(el => {
+                    if (el.name.includes('[')) {
+                        const baseName = el.name.split('[')[0];
+                        el.name = `${baseName}[${index}]`;
+                    }
+                });
+            });
+        }
+
+        function updateRemoveButtons() {
+            const container = document.getElementById('feedback-fields');
+            const entries = container.querySelectorAll('.feedback-entry');
+
+            entries.forEach(entry => {
+                let btn = entry.querySelector('.remove-entry-btn');
+                if (!btn) {
+                    btn = document.createElement('button');
+                    btn.type = 'button';
+                    btn.className = 'btn btn-danger btn-sm mt-2 remove-entry-btn';
+                    btn.textContent = 'Remover';
+                    entry.appendChild(btn);
+                }
+
+                btn.style.display = entries.length > 1 ? 'inline-block' : 'none';
+
+                btn.onclick = null;
+
+                btn.onclick = () => {
+                    entry.remove();
+                    updateFeedbackIndices();
+                    updateRemoveButtons();
+                };
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            updateRemoveButtons();
+        });
     </script>
 @endpush

@@ -65,13 +65,13 @@ class AuthController extends Controller
 
     public function store(Request $request) {
         $request->validate([
-            'name'           => 'string|required',
-            'email'          => 'email|required|unique:users,email',
-            'role'           => 'string|required',
-            'admission_date' => 'nullable|date',
-            'birth_date'     => 'nullable|date',
-            'position'       => 'nullable|string',
-            'password'       => [
+            'name'                      => 'string|required',
+            'email'                     => 'email|required|unique:users,email',
+            'role'                      => 'string|required',
+            'admission_date'            => 'nullable|date',
+            'birth_date'                => 'nullable|date',
+            'position'                  => 'nullable|string',
+            'password'                  => [
                 'required',
                 'string',
                 'min:8',
@@ -80,16 +80,28 @@ class AuthController extends Controller
                 'regex:/[a-z]/', 
                 'regex:/[0-9]/', 
                 'regex:/[@$!%*?&]/'
-            ]
+            ],
+            'cep'                       => 'required|string|max:9',
+            'address'                   => 'required|string',
+            'number'                    => 'required|string',
+            'phone'                     => 'required|string',
+            'convenio'                  => 'required|in:sim,nao',
+            'convenio_qual'             => 'nullable|required_if:convenio,sim|string'
         ], [
-            'name.required'      => 'O nome é obrigatório.',
-            'email.required'     => 'O e-mail é obrigatório.',
-            'email.unique'       => 'E-mail já cadastrado.',
-            'role.required'      => 'O cargo é obrigatório.',
-            'password.required'  => 'A senha é obrigatória.',
-            'password.regex'     => 'A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.',
-            'password.min'       => 'A senha deve ter pelo menos 8 caracteres.',
-            'password.confirmed' => 'As senhas não coincidem.'
+            'name.required'             => 'O nome é obrigatório.',
+            'email.required'            => 'O e-mail é obrigatório.',
+            'email.unique'              => 'E-mail já cadastrado.',
+            'role.required'             => 'O cargo é obrigatório.',
+            'password.required'         => 'A senha é obrigatória.',
+            'password.regex'            => 'A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.',
+            'password.min'              => 'A senha deve ter pelo menos 8 caracteres.',
+            'password.confirmed'        => 'As senhas não coincidem.',
+            'cep.required'              => 'O CEP é obrigatório.',
+            'address.required'          => 'O endereço é obrigatório.',
+            'number.required'           => 'O número é obrigatório.',
+            'phone.required'            => 'O telefone é obrigatório.',
+            'convenio.required'         => 'O campo convênio é obrigatório.',
+            'convenio_qual.required_if' => 'O campo "Qual?" é obrigatório quando convênio está marcado como sim.'
         ]);
 
         User::create([
@@ -99,7 +111,15 @@ class AuthController extends Controller
             'role'           => $request->role,
             'admission_date' => $request->admission_date,
             'birth_date'     => $request->birth_date,
-            'position'       => $request->position
+            'position'       => $request->position,
+            'cep'            => $request->cep,
+            'address'        => $request->address,
+            'number'         => $request->number,
+            'complement'     => $request->complement,
+            'phone'          => $request->phone,
+            'emergency_phone'=> $request->emergency_phone,
+            'convenio'       => $request->convenio === 'sim',
+            'convenio_qual'  => $request->convenio_qual
         ]);
 
         return redirect()->route('usuario.user')->with('success', 'Usuário criado com sucesso.');
@@ -126,27 +146,54 @@ class AuthController extends Controller
             'password' => [
                 'nullable',
                 'string',
-                'min:8',
+                'min:8',    
                 'confirmed',
                 'regex:/[A-Z]/', 
                 'regex:/[a-z]/', 
                 'regex:/[0-9]/', 
                 'regex:/[@$!%*?&]/'
-            ]
+            ],
+            'cep'                       => 'required|string|max:9',
+            'address'                   => 'required|string',
+            'number'                    => 'required|string',
+            'phone'                     => 'required|string',
+            'emergency_phone'           => 'nullable|string',
+            'convenio'                  => 'required|in:sim,nao',
+            'convenio_qual'             => 'nullable|required_if:convenio,sim|string'
         ], [
-            'email.unique'       => 'E-mail já cadastrado.',
-            'password.regex'     => 'A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.',
-            'password.min'       => 'A senha deve ter pelo menos 8 caracteres.',
-            'password.confirmed' => 'As senhas não coincidem.'
+            'name.required'             => 'O nome é obrigatório.',
+            'email.required'            => 'O e-mail é obrigatório.',
+            'email.email'               => 'O e-mail deve ser válido.',
+            'email.unique'              => 'E-mail já cadastrado.',
+            'role.required'             => 'O campo função é obrigatório.',
+            'admission_date.date'       => 'A data de admissão deve ser válida.',
+            'birth_date.date'           => 'A data de nascimento deve ser válida.',
+            'password.min'              => 'A senha deve ter pelo menos 8 caracteres.',
+            'password.regex'            => 'A senha deve conter pelo menos uma letra maiúscula, uma minúscula, um número e um caractere especial.',
+            'password.confirmed'        => 'As senhas não coincidem.',
+            'cep.required'              => 'O CEP é obrigatório.',
+            'address.required'          => 'O endereço é obrigatório.',
+            'number.required'           => 'O número é obrigatório.',
+            'phone.required'            => 'O telefone é obrigatório.',
+            'convenio.required'         => 'O campo convênio é obrigatório.',
+            'convenio_qual.required_if' => 'O campo "Qual?" é obrigatório quando convênio está marcado como sim.'
         ]);
 
         $user->update([
-            'name'           => $request->name,
-            'email'          => $request->email,
-            'role'           => $request->role,
-            'admission_date' => $request->admission_date,
-            'birth_date'     => $request->birth_date,
-            'position'       => $request->position
+            'name'             => $request->name,
+            'email'            => $request->email,
+            'role'             => $request->role,
+            'admission_date'   => $request->admission_date,
+            'birth_date'       => $request->birth_date,
+            'position'         => $request->position,
+            'cep'              => $request->cep,
+            'address'          => $request->address,
+            'number'           => $request->number,
+            'complement'       => $request->complement,
+            'phone'            => $request->phone,
+            'emergency_phone'  => $request->emergency_phone,
+            'convenio'         => $request->convenio === 'sim',
+            'convenio_qual'    => $request->convenio === 'sim' ? $request->convenio_qual : null
         ]);
 
         if (filled($request->password)) {

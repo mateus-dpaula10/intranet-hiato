@@ -73,7 +73,14 @@ class FeedbackController extends Controller
             'visible'           => 'array'
         ]);
 
-        $userName = User::find($validated['user_id'])->name;
+        $user = User::findOrFail($validated['user_id']);
+
+        if (Feedback::where('user_id', $user->id)->exists()) {
+            return redirect()->route('feedback.index')
+                ->withErrors([
+                    'user_id' => "Já existe um feedback cadastrado para o colaborador '{$user->name}'."
+                ]);
+        }
 
         Feedback::create([
             'user_id'          => $validated['user_id'],
@@ -86,7 +93,8 @@ class FeedbackController extends Controller
             )
         ]);
 
-        return redirect()->route('feedback.index')->with('success', "Feedback(s) para o colaborador '{$userName}' cadastrado(s) com sucesso.");
+        return redirect()->route('feedback.index')
+            ->with('success', "Feedback(s) para o colaborador '{$user->name}' cadastrado(s) com sucesso.");
     }
 
     public function edit(Feedback $feedback) {

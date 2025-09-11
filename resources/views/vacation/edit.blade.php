@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Criar usuário')
+@section('title', 'Editar férias')
 
 @section('content')
     <div class="container-fluid">
@@ -106,13 +106,29 @@
                     <button type="button" class="btn btn-danger btn-sm mt-2 remove-period">Remover</button>
                 `;
                 container.appendChild(template);
+                updateRemoveButtons();
             });
 
             container.addEventListener('click', (e) => {
                 if (e.target.classList.contains('remove-period')) {
                     e.target.closest('.period-entry').remove();
+                    updateRemoveButtons();
                 }
             });
+
+            function updateRemoveButtons() {
+                const periods = container.querySelectorAll('.period-entry');
+                periods.forEach((period, index) => {
+                    const btn = period.querySelector('.remove-period');
+                    if (periods.length === 1) {
+                        if (btn) btn.style.display = 'none';
+                    } else {
+                        if (btn) btn.style.display = 'inline-block';
+                    }
+                });
+            }
+
+            updateRemoveButtons();
         });
     </script>
 @endpush

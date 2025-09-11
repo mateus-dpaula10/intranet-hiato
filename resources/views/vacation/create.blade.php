@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Criar usuário')
+@section('title', 'Criar férias')
 
 @section('content')
     <div class="container-fluid">
@@ -45,11 +45,12 @@
                                 <label for="end_date">Data de término</label>
                                 <input type="date" name="end_date[]" id="end_date" class="form-control" required>
                             </div>
+                            <button type="button" class="btn btn-danger btn-sm mt-2 remove-period">Remover</button>
                         </div>
                     </div>
 
                     <div class="form-group mt-3">
-                        <button class="btn btn-secondary" type="button" onclick="addVacationEntry()">Adicionar outro período</button>
+                        <button class="btn btn-secondary" type="button" id="add-period">Adicionar período</button>
                     </div>
 
                     <div class="form-group mt-3">
@@ -79,14 +80,48 @@
 
 @push('scripts')
     <script>
-        function addVacationEntry() {
+        document.addEventListener('DOMContentLoaded', () => {
             const container = document.getElementById('vacation-fields');
-            const entry = document.querySelector('.vacation-entry');
-            const clone = entry.cloneNode(true);
 
-            clone.querySelectorAll('input').forEach(input => input.value = '');
+            document.getElementById('add-period').addEventListener('click', () => {
+                const template = document.createElement('div');
+                template.classList.add('vacation-entry', 'border', 'p-3', 'mt-3');
+                template.innerHTML = `
+                    <div class="form-group">
+                        <label>Data de início</label>
+                        <input type="date" name="start_date[]" class="form-control" required>
+                    </div>
 
-            container.appendChild(clone);
-        }
+                    <div class="form-group mt-3">
+                        <label>Data de término</label>
+                        <input type="date" name="end_date[]" class="form-control" required>
+                    </div>
+                    <button type="button" class="btn btn-danger btn-sm mt-2 remove-period">Remover</button>
+                `;
+                container.appendChild(template);
+                updateRemoveButtons();
+            });
+
+            container.addEventListener('click', (e) => {
+                if (e.target.classList.contains('remove-period')) {
+                    e.target.closest('.vacation-entry').remove();
+                    updateRemoveButtons();
+                }
+            });
+
+            function updateRemoveButtons() {
+                const periods = container.querySelectorAll('.vacation-entry');
+                periods.forEach((period, index) => {
+                    const btn = period.querySelector('.remove-period');
+                    if (periods.length === 1) {
+                        if (btn) btn.style.display = 'none';
+                    } else {
+                        if (btn) btn.style.display = 'inline-block';
+                    }
+                });
+            }
+
+            updateRemoveButtons();
+        });
     </script>
 @endpush

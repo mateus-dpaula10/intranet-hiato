@@ -63,6 +63,51 @@
                     </div>
 
                     <div class="form-group mt-3">
+                        <label for="cep" class="form-label">CEP</label>
+                        <input type="text" name="cep" id="cep" class="form-control" required>
+                    </div>
+                    <small>Preencha o CEP que automaticamente o endereço será preenchido</small>
+
+                    <div class="form-group mt-3">
+                        <label for="address" class="form-label">Endereço</label>
+                        <input type="text" name="address" id="address" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="number" class="form-label">Número</label>
+                        <input type="number" name="number" id="number" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="complement" class="form-label">Complemento</label>
+                        <input type="text" name="complement" id="complement" class="form-control">
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="phone" class="form-label">Telefone</label>
+                        <input type="text" name="phone" id="phone" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="emergency_phone" class="form-label">Telefone de emergência</label>
+                        <input type="text" name="emergency_phone" id="emergency_phone" class="form-control">
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="convenio" class="form-label">Convênio</label>
+                        <select name="convenio" id="convenio" class="form-select" required>
+                            <option value="">Selecione</option>
+                            <option value="sim">Sim</option>
+                            <option value="nao">Não</option>
+                        </select>
+                    </div>
+
+                    <div class="form-group mt-3" id="convenio_qual_container" style="display: none">
+                        <label for="convenio_qual" class="form-label">Qual?</label>
+                        <input type="text" name="convenio_qual" id="convenio_qual" class="form-control">
+                    </div>
+
+                    <div class="form-group mt-3">
                         <button type="button" id="generate-password" class="btn btn-secondary">Gerar senha forte</button>
                     </div>
 
@@ -87,7 +132,7 @@
                     <div class="form-group mt-3">
                         <label for="password-strength">Força da senha</label>
                         <div id="password-strength" class="progress">
-                            <div id="strength-bar" class="progress-bar" role="progressbar" style="width: 0%;" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
+                            <div id="strength-bar" class="progress-bar" role="progressbar" style="width: 0%" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100"></div>
                         </div>
                     </div>
 
@@ -193,6 +238,76 @@
                     });
                 }
             });
+
+            const inputCep = document.getElementById('cep');
+            const inputAddress = document.getElementById('address');
+
+            inputCep.addEventListener('input', function () {
+                let value = inputCep.value.replace(/\D/g, '');
+                if (value.length > 8) value = value.substring(0, 8);
+                if (value.length > 5) value = value.replace(/(\d{5})(\d)/, "$1-$2");
+                inputCep.value = value;
+            });
+
+            inputCep.addEventListener('blur', function () {
+                const cep = inputCep.value.replace(/\D/g, '');
+                if (cep.length === 8) {
+                    fetch(`https://viacep.com.br/ws/${cep}/json/`)
+                        .then(response => response.json())
+                        .then(data => {
+                            if (!data.erro) {
+                                const endereco = `${data.logradouro}, ${data.bairro}, ${data.localidade} - ${data.uf}`;
+                                inputAddress.value = endereco;
+                            } else {
+                                alert('CEP não encontrado!');
+                                inputAddress.value = '';
+                            }
+                        })
+                        .catch(() => {
+                            alert('Erro ao buscar o CEP!');
+                        });
+                }
+            });
+
+            const convenioSelect = document.getElementById('convenio');
+            const convenioQualContainer = document.getElementById('convenio_qual_container');
+
+            convenioSelect.addEventListener('change', function () {
+                if (convenioSelect.value === 'sim') {
+                    convenioQualContainer.style.display = 'block';
+                    document.getElementById('convenio_qual').setAttribute('required', 'required');
+                } else {
+                    convenioQualContainer.style.display = 'none';
+                    document.getElementById('convenio_qual').value = '';
+                    document.getElementById('convenio_qual').removeAttribute('required');
+                }
+            });
+
+            function maskPhone(event) {
+                let input = event.target;
+                let value = input.value.replace(/\D/g, '');
+
+                if (!value) {
+                    input.value = '';
+                    return;
+                }
+
+                if (value.length > 11) value = value.substring(0, 11);
+
+                if (value.length > 10) {
+                    value = value.replace(/^(\d{2})(\d{5})(\d{4}).*/, "($1) $2-$3");
+                } else if (value.length > 5) {
+                    value = value.replace(/^(\d{2})(\d{4})(\d{0,4}).*/, "($1) $2-$3");
+                } else if (value.length > 2) {
+                    value = value.replace(/^(\d{2})(\d{0,5})/, "($1) $2");
+                } else {
+                    value = value.replace(/^(\d*)/, "($1");
+                }
+                input.value = value;
+            }
+
+            document.getElementById('phone').addEventListener('input', maskPhone);
+            document.getElementById('emergency_phone').addEventListener('input', maskPhone);
         })        
     </script>
 @endpush

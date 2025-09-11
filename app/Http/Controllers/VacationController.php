@@ -81,23 +81,33 @@ class VacationController extends Controller
             ];
         }
 
-        $daysRequested = collect($newPeriods)->sum('days');
+        $today = now();
+        $cutoff = $today->copy()->subYear();
 
         $vacation = Vacation::firstOrCreate(
             ['user_id' => $user->id],
             ['periods' => []]
         );
+        
+        $existingPeriods = collect($vacation->periods ?? [])
+            ->filter(fn ($p) => Carbon::parse($p['end_date'])->gte($cutoff));
 
-        $existingPeriods = $vacation->periods ?? [];
-        $daysUsed = collect($existingPeriods)->sum(fn ($p) =>
+        $daysExisting = $existingPeriods->sum(fn ($p) =>
             Carbon::parse($p['start_date'])->diffInDays(Carbon::parse($p['end_date'])) + 1
         );
 
-        $daysRemaining = 30 - $daysUsed;
+        $newPeriodsFiltered = collect($newPeriods)
+            ->filter(fn ($p) => Carbon::parse($p['end_date'])->gte($cutoff));
 
-        if ($daysRequested > $daysRemaining && !$request->has('confirm')) {
-            return back()->withInput()->with('warning', 
-                "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses, restam apenas {$daysRemaining}. Deseja confirmar mesmo assim?"
+        $daysRequested = $newPeriodsFiltered->sum('days');
+
+        $totalAfter = $daysExisting + $daysRequested;
+        $limit = 30;
+
+        if ($totalAfter > $limit && !$request->has('confirm')) {
+            return back()->withInput()->with('warning',
+                "Se salvar, o total de dias de férias nos últimos 12 meses será {$totalAfter} (limite {$limit}). " .
+                "Deseja confirmar mesmo assim?"
             );
         }
 
@@ -136,7 +146,7 @@ class VacationController extends Controller
             }
         }
 
-        $vacation->periods = array_merge($existingPeriods, $newPeriods);
+        $vacation->periods = array_merge($vacation->periods ?? [], $newPeriods);
         $vacation->save();
 
         return redirect()->route('vacation.index')
@@ -188,23 +198,30 @@ class VacationController extends Controller
             ];
         }
 
-        $daysRequested = collect($newPeriods)->sum('days');
+        $today = now();
+        $cutoff = $today->copy()->subYear();
 
         $otherVacations = Vacation::where('user_id', $user->id)
             ->where('id', '!=', $vacation->id)
             ->get();
 
-        $daysUsed = $otherVacations->sum(function ($v) {
-            return collect($v->periods ?? [])->sum(function ($p) {
-                return Carbon::parse($p['start_date'])->diffInDays(Carbon::parse($p['end_date'])) + 1;
-            });
+        $daysOther = $otherVacations->sum(function ($v) use ($cutoff) {
+            return collect($v->periods ?? [])
+                ->filter(fn ($p) => Carbon::parse($p['end_date'])->gte($cutoff))
+                ->sum(fn ($p) => Carbon::parse($p['start_date'])->diffInDays(Carbon::parse($p['end_date'])) + 1);
         });
 
-        $daysRemaining = 30 - $daysUsed;
+        $daysRequested = collect($newPeriods)
+            ->filter(fn ($p) => Carbon::parse($p['end_date'])->gte($cutoff))
+            ->sum('days');
 
-        if ($daysRequested > $daysRemaining && !$request->has('confirm')) {
+        $totalAfter = $daysOther + $daysRequested;
+        $limit = 30;
+
+        if ($totalAfter > $limit && !$request->has('confirm')) {
             return back()->withInput()->with('warning', 
-                "Este colaborador já gozou {$daysUsed} dias de férias nos últimos 12 meses, restam apenas {$daysRemaining}. Deseja confirmar mesmo assim?"
+                "Se salvar, o total de dias de férias nos últimos 12 meses será {$totalAfter} (limite {$limit}). " .
+                "Deseja confirmar mesmo assim?"
             );
         }
 
