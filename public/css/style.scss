@@ -154,7 +154,7 @@ body#dashboard {
             #index_dashboard {
                 #block_birthday {
                     background: linear-gradient(135deg, #6a11cb, #a18cd1, #ff9a9e);
-                    padding: 1rem;
+                    padding: 1rem 150px 1rem 1rem;
                     border-radius: .375rem;
                     position: relative;
                     color: #FFF;
@@ -162,7 +162,7 @@ body#dashboard {
                     &::after {
                         content: '';
                         position: absolute;
-                        right: -1rem;
+                        right: -.75rem;
                         bottom: -1rem;
                         width: 150px;
                         height: 150px;
