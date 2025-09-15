@@ -54,6 +54,7 @@ class DashboardController extends Controller
 
         $users = User::all();
         $feedbacks = collect();
+        $birthdays = collect();
 
         foreach ($users as $user) {
             if (!$user->admission_date) continue;
@@ -89,6 +90,24 @@ class DashboardController extends Controller
                 'days_left' => $daysLeft,
                 'rule' => $ruleName
             ]);
+
+            if ($user->birth_date) {
+                $birthday = Carbon::parse($user->birth_date);
+
+                $thisYearBirthday = $birthday->copy()->year($now->year);
+
+                if ($thisYearBirthday->lt($now)) {
+                    $thisYearBirthday->addYear();
+                }
+
+                if ($birthday->month === $now->month) {
+                    $birthdays->push([
+                        'user' => $user,
+                        'date' => $thisYearBirthday,
+                        'days_left' => $now->diffInDays($thisYearBirthday)
+                    ]);
+                }
+            }
         }
 
         if ($authUser->role !== 'admin') {
@@ -96,8 +115,9 @@ class DashboardController extends Controller
         }
 
         $feedbacks = $feedbacks->sortBy('date')->values();
+        $birthdays = $birthdays->sortBy(fn($b) => (int) $b['date']->format('d'))->values();
 
-        return view ('dashboard.index', compact('authUser', 'vacations', 'feedbacks'));
+        return view ('dashboard.index', compact('authUser', 'vacations', 'feedbacks', 'birthdays'));
     }
     
     public function agradecimento() 

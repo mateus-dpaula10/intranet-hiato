@@ -3,7 +3,7 @@
 @section('title', 'Dashboard')
 
 @section('content')
-    <div class="container-fluid">
+    <div class="container-fluid" id="index_dashboard">
         <div class="row">
             <div class="col-12">
                 @if (session('success'))
@@ -24,16 +24,24 @@
                     </div>
                 @endif
 
-                <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h3 class="mb-0">Dashboard</h3>
-                </div>
+                <div class="row justify-content-between pt-2">
+                    <div class="col-lg-6">
+                        <div id="block_birthday">
+                            <h4>Aniversariantes do mês</h4>
 
-                <div class="row">
-                    <div class="col-lg-7">
-                        
+                            @if ($birthdays->isNotEmpty())
+                                <ul>
+                                    @foreach ($birthdays as $birthday)
+                                        <li>{{ $birthday['user']->name }} ({{ $birthday['user']->position }}) - ({{ $birthday['date']->format('d/m/Y') }})</li>                                            
+                                    @endforeach
+                                </ul>
+                            @else
+                                <p class="mb-0">Não há aniversariantes neste mês</p>   
+                            @endif
+                        </div>
                     </div>
 
-                    <div class="col-lg-5">
+                    <div class="col-lg-5 mt-5 mt-lg-0">
                         <h4>Notificações</h4>
                         
                         @if ($vacations->isNotEmpty())
@@ -61,7 +69,7 @@
                                         @endif
                                     @endforeach
                                 </ul>
-                            </div>                            
+                            </div>     
                         @endif
                         
                         @if ($feedbacks->isNotEmpty())

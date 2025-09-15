@@ -128,4 +128,26 @@ body#dashboard > div main button#toggle_button {
   color: #765EAC;
   border: 0;
   font-size: 1.3rem;
+}
+body#dashboard > div main #index_dashboard #block_birthday {
+  background: linear-gradient(135deg, #6a11cb, #a18cd1, #ff9a9e);
+  padding: 1rem;
+  border-radius: 0.375rem;
+  position: relative;
+  color: #FFF;
+}
+body#dashboard > div main #index_dashboard #block_birthday::after {
+  content: "";
+  position: absolute;
+  right: -1rem;
+  bottom: -1rem;
+  width: 150px;
+  height: 150px;
+  background-image: url("../img/dashboard/birthday.png");
+  background-size: 150px 150px;
+  background-repeat: no-repeat;
+}
+body#dashboard > div main #index_dashboard #block_birthday ul {
+  margin-top: 1rem;
+  margin-bottom: 0;
 }/*# sourceMappingURL=style.css.map */
