@@ -29,6 +29,7 @@ return new class extends Migration
             $table->string('emergency_phone')->nullable();
             $table->boolean('convenio')->default(false);
             $table->string('convenio_qual')->nullable();
+            $table->boolean('is_management')->default(false);
             $table->rememberToken();
             $table->timestamps();
         });

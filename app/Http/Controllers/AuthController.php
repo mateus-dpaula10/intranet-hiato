@@ -86,7 +86,8 @@ class AuthController extends Controller
             'number'                    => 'required|string',
             'phone'                     => 'required|string',
             'convenio'                  => 'required|in:sim,nao',
-            'convenio_qual'             => 'nullable|required_if:convenio,sim|string'
+            'convenio_qual'             => 'nullable|required_if:convenio,sim|string',
+            'is_management'             => 'boolean'
         ], [
             'name.required'             => 'O nome é obrigatório.',
             'email.required'            => 'O e-mail é obrigatório.',
@@ -119,7 +120,8 @@ class AuthController extends Controller
             'phone'          => $request->phone,
             'emergency_phone'=> $request->emergency_phone,
             'convenio'       => $request->convenio === 'sim',
-            'convenio_qual'  => $request->convenio_qual
+            'convenio_qual'  => $request->convenio_qual,
+            'is_management'  => $request->is_management
         ]);
 
         return redirect()->route('usuario.user')->with('success', 'Usuário criado com sucesso.');
@@ -159,7 +161,8 @@ class AuthController extends Controller
             'phone'                     => 'required|string',
             'emergency_phone'           => 'nullable|string',
             'convenio'                  => 'required|in:sim,nao',
-            'convenio_qual'             => 'nullable|required_if:convenio,sim|string'
+            'convenio_qual'             => 'nullable|required_if:convenio,sim|string',
+            'is_management'             => 'boolean'
         ], [
             'name.required'             => 'O nome é obrigatório.',
             'email.required'            => 'O e-mail é obrigatório.',
@@ -193,7 +196,8 @@ class AuthController extends Controller
             'phone'            => $request->phone,
             'emergency_phone'  => $request->emergency_phone,
             'convenio'         => $request->convenio === 'sim',
-            'convenio_qual'    => $request->convenio === 'sim' ? $request->convenio_qual : null
+            'convenio_qual'    => $request->convenio === 'sim' ? $request->convenio_qual : null,
+            'is_management'    => $request->is_management
         ]);
 
         if (filled($request->password)) {

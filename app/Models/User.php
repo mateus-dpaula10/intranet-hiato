@@ -32,7 +32,8 @@ class User extends Authenticatable
         'phone',
         'emergency_phone',
         'convenio',
-        'convenio_qual'
+        'convenio_qual',
+        'is_management'
     ];
 
     /**

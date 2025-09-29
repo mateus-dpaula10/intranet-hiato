@@ -5,6 +5,7 @@ use App\Models\User;
 
 use App\Models\Dashboard;
 use App\Models\Vacation;
+use App\Models\DailyMood;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
 
@@ -96,15 +97,15 @@ class DashboardController extends Controller
 
                 $thisYearBirthday = $birthday->copy()->year($now->year);
 
-                if ($thisYearBirthday->lt($now)) {
-                    $thisYearBirthday->addYear();
-                }
+                // if ($thisYearBirthday->lt($now)) {
+                //     $thisYearBirthday->addYear();
+                // }
 
                 if ($birthday->month === $now->month) {
                     $birthdays->push([
                         'user' => $user,
                         'date' => $thisYearBirthday,
-                        'days_left' => $now->diffInDays($thisYearBirthday)
+                        'days_left' => $now->diffInDays($thisYearBirthday, false)
                     ]);
                 }
             }
@@ -117,11 +118,35 @@ class DashboardController extends Controller
         $feedbacks = $feedbacks->sortBy('date')->values();
         $birthdays = $birthdays->sortBy(fn($b) => (int) $b['date']->format('d'))->values();
 
-        return view ('dashboard.index', compact('authUser', 'vacations', 'feedbacks', 'birthdays'));
+        $moods = DailyMood::with('user')    
+            ->orderBy('date', 'desc')
+            ->get();
+
+        $availableMoods = DailyMood::moodsList();
+
+        $hasRegisteredToday = DailyMood::where('user_id', auth()->id())
+            ->where('date', now()->format('Y-m-d'))
+            ->exists();
+
+        return view ('dashboard.index', compact('authUser', 'vacations', 'feedbacks', 'birthdays', 'moods', 'availableMoods', 'hasRegisteredToday'));
     }
     
     public function agradecimento() 
     {
         return view ('dashboard.agradecimento');
+    }
+
+    public function addMoodDaily(Request $request) 
+    {
+        $request->validate([
+            'mood' => 'required|string|in:' . implode(',', DailyMood::moodsList())
+        ]);
+
+        DailyMood::updateOrCreate(
+            ['user_id' => auth()->id(), 'date' => now()->format('Y-m-d')],
+            ['mood' => $request->mood]
+        );
+
+        return redirect()->route('dashboard.index')->with('success', 'Humor registrado!');
     }
 }

@@ -27,12 +27,12 @@
                     @method('PATCH')
 
                     <div class="form-group">
-                        <label for="name" class="form-label">Nome</label>
+                        <label for="name" class="form-label">Nome*</label>
                         <input type="text" name="name" id="name" class="form-control" value="{{ old('name', $user->name) }}" required>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="email" class="form-label">E-mail</label>
+                        <label for="email" class="form-label">E-mail*</label>
                         @if(auth()->user()->role === 'admin')
                             <input type="email" name="email" id="email" class="form-control" value="{{ old('email', $user->email) }}" required>
                         @else
@@ -60,34 +60,40 @@
 
                     <div class="mt-3 d-none" id="div_admission_date">
                         <div class="form-group">
-                            <label for="birth_date" class="form-label">Data de nascimento</label>
+                            <label for="birth_date" class="form-label">Data de nascimento*</label>
                             <input type="date" name="birth_date" id="birth_date" class="form-control" value="{{ old('birth_date', $user->birth_date) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
                         </div>
 
                         <div class="form-group mt-3">
-                            <label for="admission_date" class="form-label">Data de admissão</label>                            
+                            <label for="admission_date" class="form-label">Data de admissão*</label>                            
                             <input type="date" name="admission_date" id="admission_date" class="form-control" value="{{ old('admission_date', $user->admission_date) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
                         </div>
 
                         <div class="form-group mt-3">
-                            <label for="position" class="form-label">Cargo</label>
+                            <label for="position" class="form-label">Cargo*</label>
                             <input type="text" name="position" id="position" class="form-control" value="{{ old('position', $user->position) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
+                        </div>
+
+                        <div class="form-group">
+                            <input type="hidden" name="is_management" value="0">
+                            <input class="form-check-input" type="checkbox" name="is_management" value="1" id="is_management" {{ old('is_management', $user->is_management) ? 'checked' : '' }} {{ $authUser->role === 'admin' ? '' : 'disabled' }}>
+                            <label class="form-check-label" for="is_management">Gestão?</label>
                         </div>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="cep" class="form-label">CEP</label>
+                        <label for="cep" class="form-label">CEP*</label>
                         <input type="text" name="cep" id="cep" class="form-control" value="{{ old('cep', $user->cep) }}" required>
                     </div>
                     <small>Preencha o CEP que automaticamente o endereço será preenchido</small>
 
                     <div class="form-group mt-3">
-                        <label for="address" class="form-label">Endereço</label>
+                        <label for="address" class="form-label">Endereço*</label>
                         <input type="text" name="address" id="address" class="form-control" value="{{ old('address', $user->address) }}" required>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="number" class="form-label">Número</label>
+                        <label for="number" class="form-label">Número*</label>
                         <input type="number" name="number" id="number" class="form-control" value="{{ old('number', $user->number) }}" required>
                     </div>
 
@@ -97,7 +103,7 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="phone" class="form-label">Telefone</label>
+                        <label for="phone" class="form-label">Telefone*</label>
                         <input type="text" name="phone" id="phone" class="form-control" value="{{ old('phone', $user->phone) }}" required>
                     </div>
 
@@ -107,7 +113,7 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="convenio" class="form-label">Convênio</label>
+                        <label for="convenio" class="form-label">Convênio*</label>
                         <select name="convenio" id="convenio" class="form-select" required>
                             <option value="sim" {{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'sim' ? 'selected' : '' }}>Sim</option>
                             <option value="nao" {{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'nao' ? 'selected' : '' }}>Não</option>
@@ -115,7 +121,7 @@
                     </div>
 
                     <div class="form-group mt-3" id="convenio_qual_container" style="{{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'sim' ? '' : 'display: none' }}">
-                        <label for="convenio_qual" class="form-label">Qual?</label>
+                        <label for="convenio_qual" class="form-label">Qual?*</label>
                         <input type="text" name="convenio_qual" id="convenio_qual" class="form-control" value="{{ old('convenio_qual', $user->convenio_qual) }}" {{ old('convenio', $user->convenio ? 'sim' : 'nao') === 'sim' ? 'required' : '' }}>
                     </div>
 
@@ -238,16 +244,29 @@
 
             selectRole.addEventListener('change', function() {
                 if (selectRole.value === 'collaborator') {
-                    divAdmissionDate.classList.remove('d-none');
-                    divAdmissionDate.querySelectorAll('input').forEach(i => {
-                        i.setAttribute('required', 'required');
+                    divAdmissionDate.classList.remove('d-none');  
+
+                    ['birth_date', 'admission_date', 'position'].forEach(id => {
+                        const field = document.getElementById(id);
+                        if (field) {
+                            field.setAttribute('required', 'required');
+                        }
                     });
                 } else {
                     divAdmissionDate.classList.add('d-none');
-                    divAdmissionDate.querySelectorAll('input').forEach(i => {
-                        i.removeAttribute('required', 'required');
-                        i.value = '';
+
+                    ['birth_date', 'admission_date', 'position'].forEach(id => {
+                        const field = document.getElementById(id);
+                        if (field) {
+                            field.removeAttribute('required');
+                            field.value = '';
+                        }
                     });
+
+                    const isManagement = document.getElementById('is_management');
+                    if (isManagement) {
+                        isManagement.checked = false;
+                    }
                 }
             });
 

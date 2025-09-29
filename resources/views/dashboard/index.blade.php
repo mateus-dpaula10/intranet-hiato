@@ -26,7 +26,7 @@
 
                 <div class="row justify-content-between pt-2">
                     <div class="col-lg-6">
-                        <div id="block_birthday">
+                        <div id="block_birthday" class="mb-4">
                             <h4>Aniversariantes do mês</h4>
 
                             @if ($birthdays->isNotEmpty())
@@ -39,6 +39,36 @@
                                 <p class="mb-0">Não há aniversariantes neste mês</p>   
                             @endif
                         </div>
+
+                        <h4>Termômetro de humor diário</h4>
+
+                        @if (!$hasRegisteredToday)
+                            <form action="{{ route('mood.addMoodDaily') }}" method="POST">
+                                @csrf
+
+                                <div class="form-group mt-3">
+                                    <label class="form-label">Como está se sentindo hoje?</label>
+                                    <select class="form-select" name="mood" required>
+                                        @foreach ($availableMoods as $mood)
+                                            <option value="{{ $mood }}" {{ old('mood') === $mood ? 'selected' : '' }}>
+                                                {{ ucfirst($mood) }}
+                                            </option>
+                                        @endforeach
+                                    </select>
+                                    <button class="btn btn-primary d-block ms-auto mt-2" type="submit">Registrar</button>
+                                </div>
+                            </form>                       
+                        @endif
+
+                        @if ($moods->isNotEmpty())
+                            <h5 class="mt-2">Registros de hoje</h5>
+
+                            <ul>
+                                @foreach ($moods->where('date', now()->format('Y-m-d')) as $mood)
+                                    <li>{{ $mood->user->name }}: {{ ucfirst($mood->mood) }}</li>
+                                @endforeach
+                            </ul>                     
+                        @endif
                     </div>
 
                     <div class="col-lg-5 mt-5 mt-lg-0">

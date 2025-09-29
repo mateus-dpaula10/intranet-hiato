@@ -6,11 +6,12 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiagnosticController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\FeedbackController;
+use App\Http\Controllers\DailyMoodController;
 
 Route::get('/', [AuthController::class, 'index'])->name('auth.index');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
 
-Route::middleware(['auth'])->group(function () {
+Route::middleware(['auth', 'session.expired'])->group(function () {
     Route::post('/logout', [AuthController::class, 'logout'])->name('auth.logout');
     
     Route::get('/diagnostico', [DiagnosticController::class, 'index'])->name('diagnostic.index');
@@ -28,6 +29,8 @@ Route::middleware(['auth'])->group(function () {
         Route::get('/ferias', [VacationController::class, 'index'])->name('vacation.index'); 
         
         Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('feedback.index');    
+
+        Route::post('/mood', [DashboardController::class, 'addMoodDaily'])->name('mood.addMoodDaily');
     });
     
     Route::middleware(['role:collaborator'])->group(function () {

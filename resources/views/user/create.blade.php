@@ -26,17 +26,17 @@
                     @csrf
 
                     <div class="form-group">
-                        <label for="name" class="form-label">Nome</label>
+                        <label for="name" class="form-label">Nome*</label>
                         <input type="text" name="name" id="name" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="email" class="form-label">E-mail</label>
+                        <label for="email" class="form-label">E-mail*</label>
                         <input type="email" name="email" id="email" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="role" class="form-label">Função</label>
+                        <label for="role" class="form-label">Função*</label>
                         <select name="role" id="role" class="form-select" required>
                             <option value="">Selecione uma função</option>
                             <option value="user">Usuário</option>
@@ -47,34 +47,41 @@
 
                     <div class="mt-3 d-none" id="div_admission_date">
                         <div class="form-group">
-                            <label for="birth_date" class="form-label">Data de nascimento</label>
+                            <input type="hidden" name="is_management" value="0">
+                            <label for="birth_date" class="form-label">Data de nascimento*</label>
                             <input type="date" name="birth_date" id="birth_date" class="form-control">
                         </div>
 
                         <div class="form-group mt-3">
-                            <label for="admission_date" class="form-label">Data de admissão</label>
+                            <label for="admission_date" class="form-label">Data de admissão*</label>
                             <input type="date" name="admission_date" id="admission_date" class="form-control">
                         </div>
 
                         <div class="form-group mt-3">
-                            <label for="position" class="form-label">Cargo</label>
+                            <label for="position" class="form-label">Cargo*</label>
                             <input type="text" name="position" id="position" class="form-control">
+                        </div>
+
+                        <div class="form-group">
+                            <input type="hidden" name="is_management" value="0">
+                            <input class="form-check-input" type="checkbox" name="is_management" value="1" id="is_management">
+                            <label class="form-check-label" for="is_management">Gestão?</label>
                         </div>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="cep" class="form-label">CEP</label>
+                        <label for="cep" class="form-label">CEP*</label>
                         <input type="text" name="cep" id="cep" class="form-control" required>
                     </div>
                     <small>Preencha o CEP que automaticamente o endereço será preenchido</small>
 
                     <div class="form-group mt-3">
-                        <label for="address" class="form-label">Endereço</label>
+                        <label for="address" class="form-label">Endereço*</label>
                         <input type="text" name="address" id="address" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="number" class="form-label">Número</label>
+                        <label for="number" class="form-label">Número*</label>
                         <input type="number" name="number" id="number" class="form-control" required>
                     </div>
 
@@ -84,7 +91,7 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="phone" class="form-label">Telefone</label>
+                        <label for="phone" class="form-label">Telefone*</label>
                         <input type="text" name="phone" id="phone" class="form-control" required>
                     </div>
 
@@ -94,7 +101,7 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="convenio" class="form-label">Convênio</label>
+                        <label for="convenio" class="form-label">Convênio*</label>
                         <select name="convenio" id="convenio" class="form-select" required>
                             <option value="">Selecione</option>
                             <option value="sim">Sim</option>
@@ -120,12 +127,12 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="password" class="form-label">Senha</label>
+                        <label for="password" class="form-label">Senha*</label>
                         <input type="password" name="password" id="password" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="password_confirmation" class="form-label">Confirmação da senha</label>
+                        <label for="password_confirmation" class="form-label">Confirmação da senha*</label>
                         <input type="password" name="password_confirmation" id="password_confirmation" class="form-control" required>
                     </div>
 
@@ -226,16 +233,29 @@
 
             selectRole.addEventListener('change', function() {
                 if (selectRole.value === 'collaborator') {
-                    divAdmissionDate.classList.remove('d-none');
-                    divAdmissionDate.querySelectorAll('input').forEach(i => {
-                        i.setAttribute('required', 'required');
+                    divAdmissionDate.classList.remove('d-none');  
+
+                    ['birth_date', 'admission_date', 'position'].forEach(id => {
+                        const field = document.getElementById(id);
+                        if (field) {
+                            field.setAttribute('required', 'required');
+                        }
                     });
                 } else {
                     divAdmissionDate.classList.add('d-none');
-                    divAdmissionDate.querySelectorAll('input').forEach(i => {
-                        i.removeAttribute('required', 'required');
-                        i.value = '';
+
+                    ['birth_date', 'admission_date', 'position'].forEach(id => {
+                        const field = document.getElementById(id);
+                        if (field) {
+                            field.removeAttribute('required');
+                            field.value = '';
+                        }
                     });
+
+                    const isManagement = document.getElementById('is_management');
+                    if (isManagement) {
+                        isManagement.checked = false;
+                    }
                 }
             });
 
