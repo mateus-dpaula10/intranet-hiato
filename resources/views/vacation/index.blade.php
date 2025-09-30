@@ -12,6 +12,13 @@
                         <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
                     </div>
                 @endif
+
+                @if (session('error'))
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        {{ session('error') }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Fechar"></button>
+                    </div>
+                @endif
             
                 @if($errors->any())
                     <div class="alert alert-danger alert-dismissible fade show" role="alert">
@@ -49,34 +56,47 @@
                             <tr>
                                 <th>Colaborador</th>
                                 <th>Períodos de férias</th>
+                                <th>Dias</th>
+                                <th>Status</th>
                                 @if ($user->role === 'admin')
                                     <th>Ações</th>
                                 @endif
                             </tr>
                         </thead>
                         <tbody>                            
-                            @foreach($vacations as $vacation)
+                            @foreach($periods as $period)
                                 <tr>
-                                    <td>{{ $vacation->user->name }}</td>
+                                    <td>{{ $period['user_name'] }}</td>
                                     <td>
-                                        <ul class="mb-0">
-                                            @foreach($vacation->periods as $period)
-                                                <li>
-                                                    {{ \Carbon\Carbon::parse($period['start_date'])->format('d/m/Y') }}
-                                                    até
-                                                    {{ \Carbon\Carbon::parse($period['end_date'])->format('d/m/Y') }}
-                                                </li>
-                                            @endforeach
-                                        </ul>
+                                        {{ $period['start_date']->format('d/m/Y') }}
+                                        até
+                                        {{ $period['end_date']->format('d/m/Y') }}
+                                    </td>
+                                    <td>{{ $period['days'] }}</td>
+                                    <td>
+                                        @if($period['status'] === 'Em gozo')
+                                            <span class="badge bg-success">{{ $period['status'] }}</span>
+                                        @elseif($period['status'] === 'Programada')
+                                            <span class="badge bg-primary">{{ $period['status'] }}</span>
+                                        @else
+                                            <span class="badge bg-secondary">{{ $period['status'] }}</span>
+                                        @endif
                                     </td>
                                     @if ($user->role === 'admin')
                                         <td>
                                             <div class="d-flex gap-1">
-                                                <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $vacation) }}"><i class="bi bi-pencil-square me-2"></i>Editar</a>
-                                                <form action="{{ route('vacation.destroy', $vacation) }}" method="POST">
+                                                <a class="btn btn-warning btn-sm" href="{{ route('vacation.edit', $period['vacation_id']) }}">
+                                                    <i class="bi bi-pencil-square me-2"></i>Editar
+                                                </a>
+                                                <form action="{{ route('vacation.period.destroy', [
+                                                    'vacation' => $period['vacation_id'], 
+                                                    'index' => $period['period_index']
+                                                ]) }}" method="POST">
                                                     @csrf
                                                     @method('DELETE')
-                                                    <button type="submit" class="btn btn-danger btn-sm"><i class="bi bi-trash me-2"></i>Excluir</button>
+                                                    <button type="submit" class="btn btn-danger btn-sm">
+                                                        <i class="bi bi-trash me-2"></i>Excluir
+                                                    </button>
                                                 </form>
                                             </div>
                                         </td>

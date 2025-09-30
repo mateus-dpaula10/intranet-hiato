@@ -41,15 +41,15 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="role" class="form-label">Função</label>
+                        <label for="role" class="form-label">Função*</label>
                         @if(auth()->user()->role === 'admin')
-                            <select name="role" id="role" class="form-select">
+                            <select name="role" id="role" class="form-select" required>
                                 <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Usuário</option>
                                 <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrador</option>
                                 <option value="collaborator" {{ old('role', $user->role) === 'collaborator' ? 'selected' : '' }}>Colaborador</option>
                             </select>
                         @else
-                            <select name="role" id="role" class="form-select" disabled>
+                            <select name="role" id="role" class="form-select" disabled required>
                                 <option value="user" {{ old('role', $user->role) === 'user' ? 'selected' : '' }}>Usuário</option>
                                 <option value="admin" {{ old('role', $user->role) === 'admin' ? 'selected' : '' }}>Administrador</option>
                                 <option value="collaborator" {{ old('role', $user->role) === 'collaborator' ? 'selected' : '' }}>Colaborador</option>
@@ -61,7 +61,7 @@
                     <div class="mt-3 d-none" id="div_admission_date">
                         <div class="form-group">
                             <label for="birth_date" class="form-label">Data de nascimento*</label>
-                            <input type="date" name="birth_date" id="birth_date" class="form-control" value="{{ old('birth_date', $user->birth_date) }}" {{ $authUser->role === 'admin' ? '' : 'readonly'  }}>
+                            <input type="date" name="birth_date" id="birth_date" class="form-control" value="{{ old('birth_date', $user->birth_date) }}">
                         </div>
 
                         <div class="form-group mt-3">

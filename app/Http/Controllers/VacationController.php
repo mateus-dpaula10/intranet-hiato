@@ -26,16 +26,33 @@ class VacationController extends Controller
             });
         }   
 
-        $vacations = $query->get();
+        $vacations = $query->get();        
+        $today = now();
 
-        $vacations = $vacations->sortByDesc(function ($vacation) {
-            if (!empty($vacation->periods)) {
-                return $vacation->periods[0]['start_date'];
+        $periods = collect();
+
+        foreach ($vacations as $vacation) {
+            foreach ($vacation->periods as $index => $period) {
+                $start = \Carbon\Carbon::parse($period['start_date']);
+                $end   = \Carbon\Carbon::parse($period['end_date']);
+
+                $periods->push([
+                    'vacation_id'  => $vacation->id,
+                    'user_name'    => $vacation->user->name,
+                    'start_date'   => $start,
+                    'end_date'     => $end,
+                    'days'         => $start->diffInDays($end) + 1,
+                    'status'       => $today->lt($start) 
+                                        ? 'Programada'
+                                        : ($today->between($start, $end) ? 'Em gozo' : 'Gozada'),
+                    'period_index' => $index
+                ]);
             }
-            return null;
-        });
+        }
 
-        return view ('vacation.index', compact('vacations', 'user'));
+        $periods = $periods->sortByDesc('start_date');
+
+        return view ('vacation.index', compact('periods', 'user'));
     }
 
     public function create()
@@ -151,7 +168,7 @@ class VacationController extends Controller
 
         return redirect()->route('vacation.index')
             ->with('success', 
-                "Período de férias do colaborador '{$user->name}' cadastrado(s) com sucesso."
+                "Período(s) de férias do colaborador '{$user->name}' cadastrado(s) com sucesso."
             );
     }
 
@@ -274,11 +291,19 @@ class VacationController extends Controller
             );
     }
 
-    public function destroy(Vacation $vacation)
+    public function destroyPeriod(Vacation $vacation, $index)
     {
-        $vacation->delete();
+        $periods = collect($vacation->periods);
 
-        return redirect()->back()->with('success', 'Período de férias do colaborador "' . $vacation->user->name . '" removido com sucesso.');
+        if ($periods->has($index)) {
+            $periods->forget($index);
+            $vacation->periods = $periods->values()->all();
+            $vacation->save();
+
+            return redirect()->back()->with('success', 'Período removido com sucesso.');
+        }
+
+        return redirect()->back()->with('error', 'Período não encontrado.');
     }
 
     public function markAsRead(Vacation $vacation, $periodIndex)
