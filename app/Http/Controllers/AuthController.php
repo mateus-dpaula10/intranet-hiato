@@ -85,6 +85,8 @@ class AuthController extends Controller
             'address'                   => 'required|string',
             'number'                    => 'required|string',
             'phone'                     => 'required|string',
+            'emergency_contact'         => 'required|string|max:255',
+            'emergency_phone'           => 'required|string|max:20',
             'convenio'                  => 'required|in:sim,nao',
             'convenio_qual'             => 'nullable|required_if:convenio,sim|string',
             'is_management'             => 'boolean'
@@ -101,27 +103,30 @@ class AuthController extends Controller
             'address.required'          => 'O endereço é obrigatório.',
             'number.required'           => 'O número é obrigatório.',
             'phone.required'            => 'O telefone é obrigatório.',
+            'emergency_contact.required'=> 'O contato de emergência é obrigatório.',
+            'emergency_phone.required'  => 'O telefone do contato de emergência é obrigatório.',
             'convenio.required'         => 'O campo convênio é obrigatório.',
             'convenio_qual.required_if' => 'O campo "Qual?" é obrigatório quando convênio está marcado como sim.'
         ]);
 
         User::create([
-            'name'           => $request->name,
-            'email'          => $request->email,
-            'password'       => bcrypt($request->password),
-            'role'           => $request->role,
-            'admission_date' => $request->admission_date,
-            'birth_date'     => $request->birth_date,
-            'position'       => $request->position,
-            'cep'            => $request->cep,
-            'address'        => $request->address,
-            'number'         => $request->number,
-            'complement'     => $request->complement,
-            'phone'          => $request->phone,
-            'emergency_phone'=> $request->emergency_phone,
-            'convenio'       => $request->convenio === 'sim',
-            'convenio_qual'  => $request->convenio_qual,
-            'is_management'  => $request->is_management
+            'name'              => $request->name,
+            'email'             => $request->email,
+            'password'          => bcrypt($request->password),
+            'role'              => $request->role,
+            'admission_date'    => $request->admission_date,
+            'birth_date'        => $request->birth_date,
+            'position'          => $request->position,
+            'cep'               => $request->cep,
+            'address'           => $request->address,
+            'number'            => $request->number,
+            'complement'        => $request->complement,
+            'phone'             => $request->phone,
+            'emergency_contact' => $request->emergency_contact,
+            'emergency_phone'   => $request->emergency_phone,
+            'convenio'          => $request->convenio === 'sim',
+            'convenio_qual'     => $request->convenio_qual,
+            'is_management'     => $request->is_management
         ]);
 
         return redirect()->route('usuario.user')->with('success', 'Usuário criado com sucesso.');
@@ -159,7 +164,8 @@ class AuthController extends Controller
             'address'                   => 'required|string',
             'number'                    => 'required|string',
             'phone'                     => 'required|string',
-            'emergency_phone'           => 'nullable|string',
+            'emergency_contact'         => 'required|string|max:255',
+            'emergency_phone'           => 'required|string|max:20',
             'convenio'                  => 'required|in:sim,nao',
             'convenio_qual'             => 'nullable|required_if:convenio,sim|string',
             'is_management'             => 'boolean'
@@ -178,26 +184,29 @@ class AuthController extends Controller
             'address.required'          => 'O endereço é obrigatório.',
             'number.required'           => 'O número é obrigatório.',
             'phone.required'            => 'O telefone é obrigatório.',
+            'emergency_contact.required'=> 'O contato de emergência é obrigatório.',
+            'emergency_phone.required'  => 'O telefone do contato de emergência é obrigatório.',
             'convenio.required'         => 'O campo convênio é obrigatório.',
             'convenio_qual.required_if' => 'O campo "Qual?" é obrigatório quando convênio está marcado como sim.'
         ]);
 
         $user->update([
-            'name'             => $request->name,
-            'email'            => $request->email,
-            'role'             => $request->role,
-            'admission_date'   => $request->admission_date,
-            'birth_date'       => $request->birth_date,
-            'position'         => $request->position,
-            'cep'              => $request->cep,
-            'address'          => $request->address,
-            'number'           => $request->number,
-            'complement'       => $request->complement,
-            'phone'            => $request->phone,
-            'emergency_phone'  => $request->emergency_phone,
-            'convenio'         => $request->convenio === 'sim',
-            'convenio_qual'    => $request->convenio === 'sim' ? $request->convenio_qual : null,
-            'is_management'    => $request->is_management
+            'name'               => $request->name,
+            'email'              => $request->email,
+            'role'               => $request->role,
+            'admission_date'     => $request->admission_date,
+            'birth_date'         => $request->birth_date,
+            'position'           => $request->position,
+            'cep'                => $request->cep,
+            'address'            => $request->address,
+            'number'             => $request->number,
+            'complement'         => $request->complement,
+            'phone'              => $request->phone,
+            'emergency_contact'  => $request->emergency_contact,
+            'emergency_phone'    => $request->emergency_phone,
+            'convenio'           => $request->convenio === 'sim',
+            'convenio_qual'      => $request->convenio === 'sim' ? $request->convenio_qual : null,
+            'is_management'      => $request->is_management
         ]);
 
         if (filled($request->password)) {

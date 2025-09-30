@@ -30,6 +30,7 @@ class User extends Authenticatable
         'number',
         'complement',
         'phone',
+        'emergency_contact',
         'emergency_phone',
         'convenio',
         'convenio_qual',

@@ -108,8 +108,13 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="emergency_phone" class="form-label">Telefone de emergência</label>
-                        <input type="text" name="emergency_phone" id="emergency_phone" class="form-control" value="{{ old('emergency_phone', $user->emergency_phone) }}">
+                        <label for="emergency_contact" class="form-label">Nome do contato de emergência*</label>
+                        <input type="text" name="emergency_contact" id="emergency_contact" class="form-control" value="{{ old('emergency_contact', $user->emergency_contact) }}" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="emergency_phone" class="form-label">Telefone do contato de emergência*</label>
+                        <input type="text" name="emergency_phone" id="emergency_phone" class="form-control" value="{{ old('emergency_phone', $user->emergency_phone) }}" required>
                     </div>
 
                     <div class="form-group mt-3">
@@ -243,7 +248,7 @@
             });
 
             selectRole.addEventListener('change', function() {
-                if (selectRole.value === 'collaborator') {
+                if (selectRole.value === 'collaborator' || selectRole.value === 'admin') {
                     divAdmissionDate.classList.remove('d-none');  
 
                     ['birth_date', 'admission_date', 'position'].forEach(id => {

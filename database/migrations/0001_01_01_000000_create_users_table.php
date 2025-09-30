@@ -26,6 +26,7 @@ return new class extends Migration
             $table->string('number');
             $table->string('complement')->nullable();
             $table->string('phone');
+            $table->string('emergency_contact')->nullable();
             $table->string('emergency_phone')->nullable();
             $table->boolean('convenio')->default(false);
             $table->string('convenio_qual')->nullable();

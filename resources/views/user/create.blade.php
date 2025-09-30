@@ -96,8 +96,13 @@
                     </div>
 
                     <div class="form-group mt-3">
-                        <label for="emergency_phone" class="form-label">Telefone de emergência</label>
-                        <input type="text" name="emergency_phone" id="emergency_phone" class="form-control">
+                        <label for="emergency_contact" class="form-label">Nome do contato de emergência*</label>
+                        <input type="text" name="emergency_contact" id="emergency_contact" class="form-control" required>
+                    </div>
+
+                    <div class="form-group mt-3">
+                        <label for="emergency_phone" class="form-label">Telefone do contato de emergência*</label>
+                        <input type="text" name="emergency_phone" id="emergency_phone" class="form-control" required>
                     </div>
 
                     <div class="form-group mt-3">
@@ -110,7 +115,7 @@
                     </div>
 
                     <div class="form-group mt-3" id="convenio_qual_container" style="display: none">
-                        <label for="convenio_qual" class="form-label">Qual?</label>
+                        <label for="convenio_qual" class="form-label">Qual?*</label>
                         <input type="text" name="convenio_qual" id="convenio_qual" class="form-control">
                     </div>
 
@@ -232,7 +237,7 @@
             });
 
             selectRole.addEventListener('change', function() {
-                if (selectRole.value === 'collaborator') {
+                if (selectRole.value === 'collaborator' || selectRole.value === 'admin') {
                     divAdmissionDate.classList.remove('d-none');  
 
                     ['birth_date', 'admission_date', 'position'].forEach(id => {
