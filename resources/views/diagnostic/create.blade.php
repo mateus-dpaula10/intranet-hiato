@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Diagnóstico')
+@section('title', 'Perfil de Cultura')
 
 @section('content')
     <div class="container-fluid">

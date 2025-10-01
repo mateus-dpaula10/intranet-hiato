@@ -6,7 +6,7 @@ use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\DiagnosticController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\FeedbackController;
-use App\Http\Controllers\DailyMoodController;
+use App\Http\Controllers\DiscController;
 
 Route::get('/', [AuthController::class, 'index'])->name('auth.index');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
@@ -30,7 +30,11 @@ Route::middleware(['auth', 'session.expired'])->group(function () {
         
         Route::get('/feedbacks', [FeedbackController::class, 'index'])->name('feedback.index');    
 
-        Route::post('/mood', [DashboardController::class, 'addMoodDaily'])->name('mood.addMoodDaily');
+        Route::post('/mood', [DashboardController::class, 'addMoodDaily'])->name('mood.addMoodDaily');        
+
+        Route::get('/disc', [DiscController::class, 'index'])->name('disc.index');
+        Route::get('/disc/create', [DiscController::class, 'create'])->name('disc.create');
+        Route::post('/disc', [DiscController::class, 'store'])->name('disc.store');
     });
     
     Route::middleware(['role:collaborator'])->group(function () {

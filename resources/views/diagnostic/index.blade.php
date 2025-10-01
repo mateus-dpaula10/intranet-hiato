@@ -1,6 +1,6 @@
 @extends('main')
 
-@section('title', 'Diagnóstico')
+@section('title', 'Perfil de Cultura')
 
 @section('content')
     <div class="container-fluid">
@@ -25,7 +25,7 @@
                 @endif        
 
                 <div class="d-flex justify-content-between align-items-center mb-5">
-                    <h3 class="mb-0">Diagnóstico</h3> 
+                    <h3 class="mb-0">Perfil de Cultura</h3> 
 
                     @if ($authUser->role === 'admin')
                         <a href="{{ route('diagnostic.create') }}">

@@ -23,9 +23,12 @@
                         </li>
                     @endif
                     <li>
-                        <a href="{{ route('diagnostic.index') }}">Diagnóstico</a>
+                        <a href="{{ route('diagnostic.index') }}">Perfil de Cultura</a>
                     </li>
                     @if (auth()->user()->role !== 'user')
+                        <li>
+                            <a href="{{ route('disc.index') }}">Avaliação Comportamental - DISC</a>
+                        </li>                        
                         <li>
                             <a href="{{ route('vacation.index') }}">Férias</a>
                         </li>                        
