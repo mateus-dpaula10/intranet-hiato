@@ -15,7 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('product_name');
             $table->enum('type', ['units', 'packages']);
-            $table->integer('quantidade');
+            $table->decimal('quantidade', 8, 2);
             $table->timestamps();
         });
     }

@@ -44,7 +44,7 @@
                             @foreach ($stocks as $stock)
                                 <tr>
                                     <td>
-                                        <input type="text" name="stocks[{{ $stock->id }}][product_name]" class="form-control" value={{ $stock->product_name }}>
+                                        <input type="text" name="stocks[{{ $stock->id }}][product_name]" class="form-control" value="{{ $stock->product_name }}">
                                     </td>
                                     <td>
                                         <select name="stocks[{{ $stock->id }}][type]" class="form-select">
@@ -53,7 +53,7 @@
                                         </select>
                                     </td>
                                     <td>
-                                        <input type="number" name="stocks[{{ $stock->id }}][quantidade]" class="form-control" step="0.1" value={{ $stock->quantidade }}>
+                                        <input type="number" name="stocks[{{ $stock->id }}][quantidade]" class="form-control" step="0.1" value="{{ $stock->quantidade }}">
                                     </td>
                                     <td>
                                         <button type="button" class="btn btn-danger btn-sm remove-row">Excluir</button>

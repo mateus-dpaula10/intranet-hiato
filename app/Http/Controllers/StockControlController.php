@@ -19,6 +19,10 @@ class StockControlController extends Controller
         $stocks = $request->input('stocks', []);
         $newStocks = $request->input('new', []);
         
+        $idsMantidos = array_keys($stocks);
+
+        StockControl::whereNotIn('id', $idsMantidos)->delete();
+
         foreach ($stocks as $id => $data) {
             $stock = StockControl::find($id);
             if ($stock) {
