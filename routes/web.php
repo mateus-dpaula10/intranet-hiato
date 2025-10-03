@@ -7,6 +7,7 @@ use App\Http\Controllers\DiagnosticController;
 use App\Http\Controllers\VacationController;
 use App\Http\Controllers\FeedbackController;
 use App\Http\Controllers\DiscController;
+use App\Http\Controllers\StockControlController;
 
 Route::get('/', [AuthController::class, 'index'])->name('auth.index');
 Route::post('/login', [AuthController::class, 'login'])->name('auth.login');
@@ -35,6 +36,9 @@ Route::middleware(['auth', 'session.expired'])->group(function () {
         Route::get('/disc', [DiscController::class, 'index'])->name('disc.index');
         Route::get('/disc/create', [DiscController::class, 'create'])->name('disc.create');
         Route::post('/disc', [DiscController::class, 'store'])->name('disc.store');
+
+        Route::get('/estoque', [StockControlController::class, 'index'])->name('estoque.index');
+        Route::patch('/estoque/update-all', [StockControlController::class, 'updateAll'])->name('estoque.updateAll');
     });
     
     Route::middleware(['role:collaborator'])->group(function () {

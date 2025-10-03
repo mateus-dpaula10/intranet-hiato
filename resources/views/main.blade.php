@@ -38,6 +38,11 @@
                         <li>
                             <a href="{{ route('feedback.index') }}">Feedbacks</a>
                         </li>
+                        @if (auth()->user()->is_management)
+                            <li>
+                                <a href="{{ route('estoque.index') }}">Controle de Estoque</a>
+                            </li>
+                        @endif
                     @endif
                     <li>
                         <form action="{{ route('auth.logout') }}" method="POST">

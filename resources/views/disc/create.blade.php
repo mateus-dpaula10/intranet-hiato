@@ -26,13 +26,13 @@
                             <div class="row mt-2">
                                 @foreach ($row->blocks as $dimension => $options)
                                     <div class="col-md-3">
-                                        <strong>
+                                        {{-- <strong>
                                             @if($dimension === 'D') Dominância (D) 
                                             @elseif($dimension === 'I') Influência (I) 
                                             @elseif($dimension === 'S') Estabilidade (S) 
                                             @elseif($dimension === 'C') Conformidade (C) 
                                             @endif
-                                        </strong>
+                                        </strong> --}}
                                         <ul>
                                             @foreach ($options as $option)
                                                 <li>{{ $option }}</li>
